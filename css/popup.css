@@ -1,0 +1,574 @@
+:root {
+    --blue: #005cc8 ;
+    --red: #c62828 ;
+    --green: #56c465 ;
+    --yellow: #e5c23b ;
+    --purple: #6f39e0 ;
+    --orange: #f18442 ;
+    --teal: #3be5aa ;
+    --gray: #5c5c5c ;
+    --off-white: #dbdce1;
+    --white: #ffffff;
+    --black: #000000;
+    --dark: #333333;
+}
+
+@supports (-webkit-appearance:none) {
+    #toc-placeholder::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+        width: 5px;
+        height: 0;
+    }
+
+    #toc-placeholder::-webkit-scrollbar-track,
+    body::-webkit-scrollbar-track {
+        background: var(--off-white);
+    }
+
+    #toc-placeholder::-webkit-scrollbar-thumb,
+    body::-webkit-scrollbar-thumb {
+        background: var(--black);
+    }
+
+    #toc-placeholder::-webkit-scrollbar-thumb:hover,
+    body::-webkit-scrollbar-thumb:hover {
+        background: var(--gray);
+    }
+}
+
+body {
+    color: var(--blue) ;
+    font-family: "Arial", sans-serif ;
+    padding: 0 0 10px;
+    margin: 0;
+    width: 45rem;
+    min-height: 175px;
+    overflow-y: hidden;
+    background-color: var(--white);
+}
+
+body.dark {
+    background-color: var(--dark);
+}
+
+header {
+    width: 100%;
+    height:60px;
+    text-align: center;
+    color: var(--white);
+    background-color: var(--blue);
+    padding: 5px 0;
+    margin: 0;
+    user-select: none;
+    position: fixed;
+    top: 0;
+}
+
+header h1 {
+    margin-left: 30px;
+}
+
+#tab-group-label {
+    position: absolute;
+    display: inline-block;
+    top: 17px;
+    left: 60px;
+    width: 168px;
+    height: 50px;
+}
+
+#tab-group {
+    width: 140px;
+}
+
+#clear-tab-group-input {
+    display: none;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: var(--blue);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+#clear-tab-group-input.show {
+    display: inline;
+}
+
+#bookmarks-placeholder {
+    margin: 80px 0 0;
+}
+
+.bookmark-title span {
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.bookmark-title span:hover {
+    color: var(--dark) ;
+}
+
+#toc {
+    display: block;
+    position: relative;
+    top: 50px;
+    left: 50px;
+    z-index: 1;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#toc a {
+    transition: color 0.3s ease;
+}
+
+#toc a:hover {
+    color: var(--purple);
+}
+
+#toc #menu {
+    position: fixed ;
+    top: 25px ;
+    left: 15px ;
+    z-index: 1 ;
+}
+
+#toc input {
+    display: block;
+    width: 40px;
+    height: 32px;
+    position: fixed;
+    top: 16px;
+    left: 8px;
+    cursor: pointer;
+    opacity: 0;
+    z-index: 2;
+    -webkit-touch-callout: none;
+}
+
+#toc span {
+    background: var(--white);
+    display: block;
+    width: 33px;
+    height: 4px;
+    margin-bottom: 5px;
+    position: relative;
+    border-radius: 3px;
+    z-index: 1;
+    transform-origin: 4px 0;
+    transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+                background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+                opacity 0.55s ease;
+}
+
+#toc span:first-child {
+    transform-origin: 0 0;
+}
+
+#toc span:nth-last-child(2) {
+    transform-origin: 0 100%;
+}
+
+#toc input:checked ~ #menu span {
+    z-index: 2;
+    opacity: 1;
+    transform: rotate(45deg) translate(-7px, -19px);
+    background: var(--black);
+}
+
+body.dark #toc input:checked ~ #menu span {
+    background: var(--off-white);
+}
+
+#toc input:checked ~ #menu span:nth-last-child(3) {
+    opacity: 0;
+    transform: rotate(0deg) scale(0.2, 0.2);
+}
+
+#toc input:checked ~ #menu span:nth-last-child(2) {
+    transform: rotate(-45deg) translate(0, 13px);
+}
+
+#toc-placeholder {
+    position: fixed;
+    left: 0;
+    top: 100px;
+    width: 20rem;
+    height: 20rem;
+    overflow-y: auto;
+    margin: -100px 0 0 -50px;
+    padding: 45px 25px 50px 100px;
+    background: #ededed;
+    list-style-type: none;
+    -webkit-font-smoothing: antialiased;
+    transform-origin: 0 0;
+    transform: translate(-100%, 0);
+    transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0);
+    border-bottom: 5px solid var(--off-white) ;
+}
+
+body.dark #toc-placeholder {
+    background-color: var(--dark);
+    border-bottom: 5px solid var(--off-white) ;
+}
+
+#app-theme-toggle--button {
+    background-color: var(--dark) ;
+    color: var(--off-white) ;
+    position: absolute;
+    right: 30px;
+    border: 1px solid var(--dark) ;
+}
+
+#app-theme-toggle--button:hover {
+    background-color: var(--off-white) ;
+    color: var(--dark) ;
+}
+
+body.dark #app-theme-toggle--button {
+    background-color: var(--off-white) ;
+    color: var(--dark) ;
+    border: 1px solid var(--off-white) ;
+}
+
+body.dark #app-theme-toggle--button:hover {
+    background-color: var(--dark) ;
+    color: var(--off-white) ;
+}
+
+#version--div {
+    color: var(--dark) ;
+    position: absolute;
+    right: 30px;
+    top: 20px;
+}
+
+body.dark #version--div {
+    color: var(--white) ;
+}
+
+#toc input:checked ~ #toc-placeholder {
+    transform: none;
+}
+
+#toc-placeholder ul {
+    padding-inline-start: 15px;
+}
+
+#toc-placeholder li {
+    list-style: none;
+}
+
+#toc-placeholder li::before {
+    font-family: monospace;
+    content: '\00a0\00a0';
+    font-size: 2em;
+    font-weight: bolder;
+    cursor: pointer;
+}
+
+#toc-placeholder li:has(> ul > li)::before {
+    content: '+\00a0';
+}
+
+#toc-placeholder li > ul {
+    display: none;
+}
+
+#toc-placeholder ul.show {
+    display: block;
+}
+
+#toc-placeholder li a {
+    display: inline-block;
+    text-decoration: none;
+    padding: 10px 15px;
+    margin: 5px 0 0 0;
+    background-color: var(--blue);
+    color: var(--off-white) ;
+    border: 1px solid var(--blue) ;
+    border-radius: 10px;
+}
+
+#toc-placeholder li a:hover {
+    background-color: var(--off-white);
+    color: var(--blue) ;
+}
+
+input[type=text], select {
+    border: 1px solid var(--blue);
+    padding: 10px 15px;
+    transition: background-color 0.3s ease;
+}
+input[type=text]:focus, select:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.125rem var(--blue);
+}
+input[type=text].red, select.red {
+    border: 1px solid var(--red);
+}
+input[type=text].red:focus, select.red:focus {
+    box-shadow: 0 0 0 0.125rem var(--red);
+}
+input[type=text].green, select.green {
+    border: 1px solid var(--green);
+}
+input[type=text].green:focus, select.green:focus {
+    box-shadow: 0 0 0 0.125rem var(--green);
+}
+input[type=text].yellow, select.yellow {
+    border: 1px solid var(--yellow);
+}
+input[type=text].yellow:focus, select.yellow:focus {
+    box-shadow: 0 0 0 0.125rem var(--yellow);
+}
+input[type=text].purple, select.purple {
+    border: 1px solid var(--purple);
+}
+input[type=text].purple:focus, select.purple:focus {
+    box-shadow: 0 0 0 0.125rem var(--purple);
+}
+input[type=text].orange, select.orange {
+    border: 1px solid var(--orange);
+}
+input[type=text].orange:focus, select.orange:focus {
+    box-shadow: 0 0 0 0.125rem var(--orange);
+}
+input[type=text].teal, select.teal {
+    border: 1px solid var(--teal);
+}
+input[type=text].teal:focus, select.teal:focus {
+    box-shadow: 0 0 0 0.125rem var(--teal);
+}
+input[type=radio] {
+    display:none ;
+}
+button, input[type=submit],
+input[type=radio] + label, a.bookmark-url {
+    cursor: pointer;
+    color: var(--white);
+    background-color: var(--blue);
+    border: 1px solid var(--blue);
+    padding: 10px 20px;
+    text-decoration: none;
+    display: inline-block;
+    font-size:13px;
+    user-select: none;
+    transition: background-color 0.3s ease;
+}
+button:hover, input[type=submit]:hover,
+input[type=radio]:hover + label,
+input[type=radio]:checked + label, a.bookmark-url:hover {
+    color: var(--blue);
+    background-color: var(--white);
+}
+button.red, input[type=submit].red,
+input[type=radio] + label.red, a.bookmark-url.red {
+    background-color: var(--red);
+    border: 1px solid var(--red);
+}
+button.red:hover, input[type=submit].red:hover,
+input[type=radio]:hover + label.red,
+input[type=radio]:checked + label.red, a.bookmark-url.red:hover {
+    color: var(--red);
+    background-color: var(--white);
+}
+button.green, input[type=submit].green,
+input[type=radio] + label.green, a.bookmark-url.green {
+    background-color: var(--green);
+    border: 1px solid var(--green);
+}
+button.green:hover, input[type=submit].green:hover,
+input[type=radio]:hover + label.green,
+input[type=radio]:checked + label.green, a.bookmark-url.green:hover {
+    color: var(--green);
+    background-color: var(--white);
+}
+button.yellow, input[type=submit].yellow,
+input[type=radio] + label.yellow, a.bookmark-url.yellow {
+    background-color: var(--yellow);
+    border: 1px solid var(--yellow);
+}
+button.yellow:hover, input[type=submit].yellow:hover,
+input[type=radio]:hover + label.yellow,
+input[type=radio]:checked + label.yellow, a.bookmark-url.yellow:hover {
+    color: var(--yellow);
+    background-color: var(--white);
+}
+button.purple, input[type=submit].purple,
+input[type=radio] + label.purple, a.bookmark-url.purple {
+    background-color: var(--purple);
+    border: 1px solid var(--purple);
+}
+button.purple:hover, input[type=submit].purple:hover,
+input[type=radio]:hover + label.purple,
+input[type=radio]:checked + label.purple, a.bookmark-url.purple:hover {
+    color: var(--purple);
+    background-color: var(--white);
+}
+button.orange, input[type=submit].orange,
+input[type=radio] + label.orange, a.bookmark-url.orange {
+    background-color: var(--orange);
+    border: 1px solid var(--orange);
+}
+button.orange:hover, input[type=submit].orange:hover,
+input[type=radio]:hover + label.orange,
+input[type=radio]:checked + label.orange, a.bookmark-url.orange:hover {
+    color: var(--orange);
+    background-color: var(--white);
+}
+button.teal, input[type=submit].teal,
+input[type=radio] + label.teal, a.teal {
+    background-color: var(--teal);
+    border: 1px solid var(--teal);
+}
+button.teal:hover, input[type=submit].teal:hover,
+input[type=radio]:hover + label.teal,
+input[type=radio]:checked + label.teal, a.bookmark-url.teal:hover {
+    color: var(--teal);
+    background-color: var(--white);
+}
+input[type=radio] + label:before {
+    content: "\2b58\00a0" ;
+}
+input[type=radio]:checked + label:before {
+    content: "\2b24\00a0" ;
+}
+
+#open-or-copy-div {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    padding: 0 15px;
+    margin: 0;
+}
+
+a.bookmark-goto {
+    cursor: pointer ;
+}
+
+h1.bookmark-title,
+h2.bookmark-title,
+h3.bookmark-title,
+h4.bookmark-title,
+h5.bookmark-title,
+h6.bookmark-title {
+    color: var(--white) ;
+    background-color: var(--blue);
+    margin: 7px 7px 0 7px ;
+    padding: 7px ;
+    font-size: 20px ;
+}
+
+h2.bookmark-title {
+    background-color: var(--green);
+    padding-left: 25px ;
+    font-size: 18px ;
+}
+
+h3.bookmark-title {
+    background-color: var(--orange);
+    padding-left: 45px ;
+    font-size: 16px ;
+}
+
+h4.bookmark-title {
+    background-color: var(--purple);
+    padding-left: 65px ;
+    font-size: 14px ;
+}
+
+h5.bookmark-title {
+    background-color: var(--yellow);
+    padding-left: 85px ;
+    font-size: 12px ;
+}
+
+h6.bookmark-title {
+    background-color: var(--red);
+    padding-left: 105px ;
+    font-size: 11px ;
+}
+
+.bookmark-url {
+    margin: 7px 0 0 7px ;
+}
+
+/* Snackbar */
+.snackbar {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border: 2px solid var(--off-white);
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+}
+
+.snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+/* Loading spinner */
+#loading-spinner {
+     position: fixed;
+     width: 100vw;
+     height: 100vh;
+     display: none;
+ }
+
+#loading-spinner img {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+}
+
+#loading-spinner.show {
+    display: block;
+}
+
+@keyframes rotate-clockwise {
+    0%   { transform: rotateZ(0deg); }
+    25%  { transform: rotateZ(90deg); }
+    50%  { transform: rotateZ(180deg); }
+    75%  { transform: rotateZ(270deg); }
+    100% { transform: rotateZ(360deg); }
+}
+
+#loading-spinner.show img {
+    animation-name: rotate-clockwise;
+    animation-duration: 0.5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
