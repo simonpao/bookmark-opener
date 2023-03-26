@@ -6,7 +6,6 @@ const $body = $("body") ;
 const $openOpt = $("input#open-opt[name='open-or-copy-option']") ;
 const $tabGroup = $("#tab-group") ;
 const $clearTabGroup = $("#clear-tab-group-input") ;
-const $toggleDarkMode = $("#app-theme-toggle--button") ;
 const $everythingElse = $("header, #bookmarks-placeholder, li a") ;
 let timeout ;
 
@@ -50,14 +49,7 @@ $tocMenu.change((evt) => {
         $everythingElse.off("click") ;
 }) ;
 
-$toggleDarkMode.click(() => {
-    $body.toggleClass("dark") ;
-    $toggleDarkMode.text($body.hasClass("dark") ? "Light Mode" : "Dark Mode") ;
-    setLocalStorage('theme', { "name": $body.hasClass("dark") ? "dark" : "light" } ) ;
-}) ;
-
-if(theme.name === "dark")
-    $toggleDarkMode.trigger("click") ;
+setDarkMode(true) ;
 
 function showMessage(type) {
     let $elem = $(`.snackbar.${type}`) ;
@@ -195,6 +187,18 @@ function sortBookmarks(bookmarks) {
     }) ;
 }
 
+function setDarkMode(toggle) {
+    const $toggleDarkMode = $("#app-theme-toggle--button") ;
+    $toggleDarkMode.click(() => {
+        $body.toggleClass("dark") ;
+        $toggleDarkMode.text($body.hasClass("dark") ? "Light Mode" : "Dark Mode") ;
+        setLocalStorage('theme', { "name": $body.hasClass("dark") ? "dark" : "light" } ) ;
+    }) ;
+
+    if(theme.name === "dark" && toggle)
+        $toggleDarkMode.trigger("click") ;
+}
+
 function setListeners() {
     $(".bookmark-url").click((evt) => {
         let url = $(evt.currentTarget).data("url") ;
@@ -234,6 +238,7 @@ function setListeners() {
         $("#loading-spinner").removeClass("show") ;
         $("#bookmarks-placeholder").html(cache.processLevelResult) ;
         $("#toc-placeholder").html(cache.constructToCResult) ;
+        setDarkMode(false) ;
         setListeners();
     } else {
         chrome.bookmarks.getTree().then(async (bookmarks) => {
