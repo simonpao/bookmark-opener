@@ -195,41 +195,68 @@ function sortBookmarks(bookmarks) {
     }) ;
 }
 
-(() => {
-    chrome.bookmarks.getTree().then(async (bookmarks) => {
-        bookmarks = sortBookmarks(bookmarks) ;
-
-        let [, list] = await Promise.all([
-            processLevel(bookmarks[0].children, 1),
-            constructToC(bookmarks[0].children)
-        ]) ;
-        $("#toc-placeholder").append(list) ;
-        $("#toc-placeholder > ul > li > ul").addClass("show") ;
-        $("#loading-spinner").removeClass("show") ;
-
-        $(".bookmark-url").click((evt) => {
-            let url = $(evt.currentTarget).data("url") ;
-            let groupName = $("#tab-group").val() ;
-            let title = $(evt.currentTarget).data("group") ;
-            urlOnClick(url, groupName || title);
-        }) ;
-
-        $(".bookmark-goto").click((evt) => {
-            evt.preventDefault() ;
-            evt.stopPropagation() ;
-            let id = $(evt.currentTarget).attr("data-href") ;
-            $("html, body").animate({ scrollTop: $(id)?.offset()?.top-74 }) ;
-            $tocMenu.prop("checked", false) ;
-        }) ;
-
-        $(".bookmark-title span").click((evt) => {
-            let title = $(evt.currentTarget).parent().attr("title") ;
-            $tabGroup.val(title).trigger("input") ;
-        }) ;
-
-        $("#toc-placeholder li:has(> ul > li)").click((evt) => {
-            evt.stopPropagation() ;
-            $(evt.currentTarget).children("ul").toggleClass("show") ;
-        }) ;
+function setListeners() {
+    $(".bookmark-url").click((evt) => {
+        let url = $(evt.currentTarget).data("url") ;
+        let groupName = $("#tab-group").val() ;
+        let title = $(evt.currentTarget).data("group") ;
+        urlOnClick(url, groupName || title);
     }) ;
+
+    $(".bookmark-goto").click((evt) => {
+        evt.preventDefault() ;
+        evt.stopPropagation() ;
+        let id = $(evt.currentTarget).attr("data-href") ;
+        $("html, body").animate({ scrollTop: $(id)?.offset()?.top-74 }) ;
+        $tocMenu.prop("checked", false) ;
+    }) ;
+
+    $(".bookmark-title span").click((evt) => {
+        let title = $(evt.currentTarget).parent().attr("title") ;
+        $tabGroup.val(title).trigger("input") ;
+    }) ;
+
+    $("#toc-placeholder li:has(> ul > li)").click((evt) => {
+        evt.stopPropagation() ;
+        $(evt.currentTarget).children("ul").toggleClass("show") ;
+    }) ;
+}
+
+(() => {
+    let cache = getLocalStorage('list-cache') ;
+    let timestamp = new Date().getTime() ;
+    const CACHE_EXPIRE = 60000 ; // milliseconds
+
+    if(typeof cache === "object" &&
+       cache.hasOwnProperty("processLevelResult") &&
+       cache.hasOwnProperty("constructToCResult") &&
+       timestamp < cache.expires) {
+        $("#loading-spinner").removeClass("show") ;
+        $("#bookmarks-placeholder").html(cache.processLevelResult) ;
+        $("#toc-placeholder").html(cache.constructToCResult) ;
+        setListeners();
+    } else {
+        chrome.bookmarks.getTree().then(async (bookmarks) => {
+            bookmarks = sortBookmarks(bookmarks);
+
+            let [, list] = await Promise.all([
+                processLevel(bookmarks[0].children, 1),
+                constructToC(bookmarks[0].children)
+            ]);
+
+            let $tocPlaceholder = $("#toc-placeholder");
+            $tocPlaceholder.append(list);
+            $("#toc-placeholder > ul > li > ul").addClass("show");
+            $("#loading-spinner").removeClass("show");
+
+            setLocalStorage('list-cache', {
+                processLevelResult: $("#bookmarks-placeholder").html(),
+                constructToCResult: $tocPlaceholder.html(),
+                created: timestamp,
+                expires: timestamp + CACHE_EXPIRE
+            });
+
+            setListeners();
+        });
+    }
 })() ;
