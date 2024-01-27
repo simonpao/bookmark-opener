@@ -18,8 +18,8 @@
     <div id="open-or-copy-div">
         <form id="open-or-copy">
             <p id="radios-2">
-                <input tabindex="4" type="radio" id="open-opt" name="open-or-copy-option" value="open" checked><label for="open-opt">Open</label>
-                <input tabindex="5" type="radio" id="copy-opt" name="open-or-copy-option" value="copy"><label for="copy-opt">Copy</label>
+                <input tabindex="-1" type="radio" id="open-opt" name="open-or-copy-option" value="open" checked><label for="open-opt">Open</label>
+                <input tabindex="-1" type="radio" id="copy-opt" name="open-or-copy-option" value="copy"><label for="copy-opt">Copy</label>
             </p>
         </form>
     </div>
@@ -29,14 +29,14 @@
     </label>
 </header>
 <nav id="toc" role="navigation">
-    <input type="checkbox" id="toc-menu"/>
+    <input tabindex="-1" type="checkbox" id="toc-menu"/>
     <div id="menu">
         <span></span>
         <span></span>
         <span></span>
     </div>
     <div id="toc-placeholder">
-        <button id="app-theme-toggle--button">Dark Mode</button>
+        <button tabindex="-1" id="app-theme-toggle--button">Dark Mode</button>
         <div id="version--div"></div>
     </div>
 </nav>

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "SMP Bookmark Opener",
   "description": "Easily open all of your bookmarks automatically organized into groups by folder name.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "icons": {
     "16": "images/smp-16.png",
     "32": "images/smp-32.png",
