@@ -268,7 +268,7 @@ function setListeners() {
         evt.preventDefault() ;
         evt.stopPropagation() ;
         let id = $(evt.currentTarget).attr("data-href") ;
-        $("html, body").animate({ scrollTop: $(id)?.offset()?.top-74 }) ;
+        $("html, body").animate({ scrollTop: $(id)?.offset()?.top-118 }) ;
         $tocMenu.prop("checked", false) ;
     }) ;
 
