@@ -11,20 +11,20 @@
 <body>
 <header>
     <label id="tab-group-label">
-        <input id="tab-group" placeholder="Tab group name" type="text" />
+        <input tabindex="3" id="tab-group" placeholder="Tab group name" type="text" />
         <span id="clear-tab-group-input">×</span>
     </label>
     <h1>Bookmark Opener</h1>
     <div id="open-or-copy-div">
         <form id="open-or-copy">
             <p id="radios-2">
-                <input type="radio" id="open-opt" name="open-or-copy-option" value="open" checked><label for="open-opt">Open</label>
-                <input type="radio" id="copy-opt" name="open-or-copy-option" value="copy"><label for="copy-opt">Copy</label>
+                <input tabindex="4" type="radio" id="open-opt" name="open-or-copy-option" value="open" checked><label for="open-opt">Open</label>
+                <input tabindex="5" type="radio" id="copy-opt" name="open-or-copy-option" value="copy"><label for="copy-opt">Copy</label>
             </p>
         </form>
     </div>
     <label id="search-label">
-        <input id="search-input" placeholder="Filter by name" type="text" />
+        <input tabindex="1" id="search-input" placeholder="Filter by name" type="text" />
         <span id="clear-search-input">×</span>
     </label>
 </header>

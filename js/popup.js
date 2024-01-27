@@ -170,6 +170,7 @@ async function processLevel(bookmarks, l, p = "", t = "") {
         if(item.title && item.url)
             $("#bookmarks-placeholder").append(
                 $(`<a></a>`).text(trimTitle(item.title)).attr({
+                    "tabIndex": "2",
                     "class": "bookmark-url",
                     "data-url": item.url,
                     "title": item.url,
@@ -248,11 +249,19 @@ function setDarkMode(toggle) {
 }
 
 function setListeners() {
-    $(".bookmark-url").off('click').on('click', (evt) => {
+    const $bookmarkUrl = $(".bookmark-url") ;
+    const bookmarkClick = (evt) => {
         let url = $(evt.currentTarget).data("url") ;
         let groupName = $("#tab-group").val() ;
         let title = $(evt.currentTarget).data("group") ;
         urlOnClick(url, groupName || title);
+    }
+
+    $bookmarkUrl.off('click').on('click', bookmarkClick) ;
+
+    $bookmarkUrl.off('keypress').on('keypress', (evt) => {
+        if(evt.key === 'Enter')
+            bookmarkClick(evt) ;
     }) ;
 
     $(".bookmark-goto").off('click').on('click', (evt) => {

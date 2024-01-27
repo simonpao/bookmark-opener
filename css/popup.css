@@ -374,7 +374,8 @@ input[type=radio] + label, a.bookmark-url {
 }
 button:hover, input[type=submit]:hover,
 input[type=radio]:hover + label,
-input[type=radio]:checked + label, a.bookmark-url:hover {
+input[type=radio]:checked + label,
+a.bookmark-url:hover, a.bookmark-url:focus {
     color: var(--blue);
     background-color: var(--white);
 }
@@ -385,7 +386,8 @@ input[type=radio] + label.red, a.bookmark-url.red {
 }
 button.red:hover, input[type=submit].red:hover,
 input[type=radio]:hover + label.red,
-input[type=radio]:checked + label.red, a.bookmark-url.red:hover {
+input[type=radio]:checked + label.red,
+a.bookmark-url.red:hover, a.bookmark-url.red:focus {
     color: var(--red);
     background-color: var(--white);
 }
@@ -396,7 +398,8 @@ input[type=radio] + label.green, a.bookmark-url.green {
 }
 button.green:hover, input[type=submit].green:hover,
 input[type=radio]:hover + label.green,
-input[type=radio]:checked + label.green, a.bookmark-url.green:hover {
+input[type=radio]:checked + label.green,
+a.bookmark-url.green:hover, a.bookmark-url.green:focus {
     color: var(--green);
     background-color: var(--white);
 }
@@ -407,7 +410,8 @@ input[type=radio] + label.yellow, a.bookmark-url.yellow {
 }
 button.yellow:hover, input[type=submit].yellow:hover,
 input[type=radio]:hover + label.yellow,
-input[type=radio]:checked + label.yellow, a.bookmark-url.yellow:hover {
+input[type=radio]:checked + label.yellow,
+a.bookmark-url.yellow:hover, a.bookmark-url.yellow:focus {
     color: var(--yellow);
     background-color: var(--white);
 }
@@ -418,7 +422,8 @@ input[type=radio] + label.purple, a.bookmark-url.purple {
 }
 button.purple:hover, input[type=submit].purple:hover,
 input[type=radio]:hover + label.purple,
-input[type=radio]:checked + label.purple, a.bookmark-url.purple:hover {
+input[type=radio]:checked + label.purple,
+a.bookmark-url.purple:hover, a.bookmark-url.purple:focus {
     color: var(--purple);
     background-color: var(--white);
 }
@@ -429,7 +434,8 @@ input[type=radio] + label.orange, a.bookmark-url.orange {
 }
 button.orange:hover, input[type=submit].orange:hover,
 input[type=radio]:hover + label.orange,
-input[type=radio]:checked + label.orange, a.bookmark-url.orange:hover {
+input[type=radio]:checked + label.orange,
+a.bookmark-url.orange:hover, a.bookmark-url.orange:focus {
     color: var(--orange);
     background-color: var(--white);
 }
@@ -440,7 +446,8 @@ input[type=radio] + label.teal, a.teal {
 }
 button.teal:hover, input[type=submit].teal:hover,
 input[type=radio]:hover + label.teal,
-input[type=radio]:checked + label.teal, a.bookmark-url.teal:hover {
+input[type=radio]:checked + label.teal,
+a.bookmark-url.teal:hover, a.bookmark-url.teal:focus {
     color: var(--teal);
     background-color: var(--white);
 }
