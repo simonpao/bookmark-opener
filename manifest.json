@@ -12,6 +12,14 @@
   "action": {
     "default_popup": "popup.html"
   },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Period",
+        "mac": "MacCtrl+Command+Period"
+      }
+    }
+  },
   "permissions": [
     "bookmarks",
     "tabGroups",

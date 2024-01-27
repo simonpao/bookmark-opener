@@ -6,6 +6,8 @@ const $body = $("body") ;
 const $openOpt = $("input#open-opt[name='open-or-copy-option']") ;
 const $tabGroup = $("#tab-group") ;
 const $clearTabGroup = $("#clear-tab-group-input") ;
+const $searchInput = $("#search-input") ;
+const $clearSearch = $("#clear-search-input") ;
 const $everythingElse = $("header, #bookmarks-placeholder, li a") ;
 let timeout ;
 
@@ -31,6 +33,52 @@ $tabGroup.on("input", (evt) => {
         $clearTabGroup.addClass("show") ;
     else
         $clearTabGroup.removeClass("show") ;
+}) ;
+
+$searchInput.focus() ;
+$searchInput.off('input').on("input", () => {
+    let cache = getLocalStorage('list-cache') ;
+    let parser = new DOMParser();
+    let xmlDoc = parser.parseFromString(cache.processLevelResult,"text/html");
+
+    if($searchInput.val() !== "") {
+        $clearSearch.addClass("show");
+
+        let bookmarks = xmlDoc.getElementsByClassName('bookmark-url') ;
+        for(let item of bookmarks) {
+            if(item?.text?.toLowerCase()?.match(new RegExp($searchInput?.val()?.toLowerCase())) === null) {
+                item.classList.add('hidden') ;
+            }
+        }
+
+        let elements = xmlDoc.querySelectorAll('.bookmark-url, .bookmark-title') ;
+        let currentTitle ; let anyNotHidden = false ;
+        for(let elem of elements) {
+            if(elem.classList.contains('bookmark-title')) {
+                if (!anyNotHidden)
+                    currentTitle?.classList.add('hidden');
+                currentTitle = elem;
+                anyNotHidden = false;
+            } else if(!elem.classList.contains('hidden')) {
+                anyNotHidden = true;
+            }
+        }
+    } else {
+        $clearSearch.removeClass("show");
+    }
+
+    $("#bookmarks-placeholder").html(xmlDoc.getRootNode().getElementsByTagName('body')[0].innerHTML) ;
+    setListeners();
+}) ;
+
+$clearSearch.off('click').on('click', () => {
+    $searchInput.val("") ;
+    $clearSearch.removeClass("show") ;
+    let cache = getLocalStorage('list-cache') ;
+    let parser = new DOMParser();
+    let xmlDoc = parser.parseFromString(cache.processLevelResult,"text/html");
+    $("#bookmarks-placeholder").html(xmlDoc.getRootNode().getElementsByTagName('body')[0].innerHTML) ;
+    setListeners();
 }) ;
 
 $clearTabGroup.click(() => {
@@ -189,7 +237,7 @@ function sortBookmarks(bookmarks) {
 
 function setDarkMode(toggle) {
     const $toggleDarkMode = $("#app-theme-toggle--button") ;
-    $toggleDarkMode.click(() => {
+    $toggleDarkMode.off('click').on('click', () => {
         $body.toggleClass("dark") ;
         $toggleDarkMode.text($body.hasClass("dark") ? "Light Mode" : "Dark Mode") ;
         setLocalStorage('theme', { "name": $body.hasClass("dark") ? "dark" : "light" } ) ;
@@ -200,14 +248,14 @@ function setDarkMode(toggle) {
 }
 
 function setListeners() {
-    $(".bookmark-url").click((evt) => {
+    $(".bookmark-url").off('click').on('click', (evt) => {
         let url = $(evt.currentTarget).data("url") ;
         let groupName = $("#tab-group").val() ;
         let title = $(evt.currentTarget).data("group") ;
         urlOnClick(url, groupName || title);
     }) ;
 
-    $(".bookmark-goto").click((evt) => {
+    $(".bookmark-goto").off('click').on('click', (evt) => {
         evt.preventDefault() ;
         evt.stopPropagation() ;
         let id = $(evt.currentTarget).attr("data-href") ;
@@ -215,12 +263,12 @@ function setListeners() {
         $tocMenu.prop("checked", false) ;
     }) ;
 
-    $(".bookmark-title span").click((evt) => {
+    $(".bookmark-title span").off('click').on('click', (evt) => {
         let title = $(evt.currentTarget).parent().attr("title") ;
         $tabGroup.val(title).trigger("input") ;
     }) ;
 
-    $("#toc-placeholder li:has(> ul > li)").click((evt) => {
+    $("#toc-placeholder li:has(> ul > li)").off('click').on('click', (evt) => {
         evt.stopPropagation() ;
         $(evt.currentTarget).children("ul").toggleClass("show") ;
     }) ;
