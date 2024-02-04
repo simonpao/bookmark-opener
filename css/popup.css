@@ -306,6 +306,7 @@ body.dark #version--div {
     border-radius: 10px;
 }
 
+#toc-placeholder li a:focus,
 #toc-placeholder li a:hover {
     background-color: var(--off-white);
     color: var(--blue) ;

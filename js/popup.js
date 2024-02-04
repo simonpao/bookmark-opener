@@ -101,13 +101,44 @@ $clearTabGroup.click(() => {
 
 let $tocMenu = $("#toc-menu") ;
 $tocMenu.change((evt) => {
-    if($tocMenu.prop("checked"))
-        $everythingElse.click(() => {
-            $tocMenu.prop("checked", false) ;
+    let $tocMenuItems = $("#toc-placeholder a.bookmark-goto");
+    if($tocMenu.prop("checked")) {
+        $everythingElse.on("click", () => {
+            $tocMenu.prop("checked", false);
+            $tocMenuItems.off("keydown") ;
+        });
+
+        if(!$tocMenuItems) return ;
+        $($tocMenuItems[0])?.focus();
+        $tocMenuItems.on("keydown", (evt) => {
+            let validCodes = ["ArrowDown", "ArrowUp", "ArrowRight", "ArrowLeft", "Tab"]
+            if (validCodes.includes( evt.code )) {
+                evt.preventDefault() ;
+                evt.stopPropagation() ;
+
+                let checkedItem = 0 ;
+                $tocMenuItems.each((index, value) => {
+                    if($(value).is(":focus"))
+                        checkedItem = index ;
+                }) ;
+                if(evt.code === "ArrowUp" || evt.code === "ArrowRight") {
+                    checkedItem = checkedItem - 1 < 0 ? $tocMenuItems.length - 1 : checkedItem - 1 ;
+                } else {
+                    checkedItem = checkedItem + 1 >= $tocMenuItems.length ? 0 : checkedItem + 1 ;
+                }
+                $($tocMenuItems[checkedItem])?.parents("ul").addClass("show") ;
+                $($tocMenuItems[checkedItem])?.focus() ;
+            }
         }) ;
-    else
-        $everythingElse.off("click") ;
+    } else {
+        $everythingElse.off("click");
+        $tocMenuItems.off("keydown") ;
+    }
 }) ;
+
+function openToC() {
+    $tocMenu.prop("checked", true).focus() ;
+}
 
 setDarkMode(true) ;
 
@@ -213,6 +244,7 @@ async function constructToC(bookmarks, t = "") {
                 $("<li></li>").append(
                     $("<a></a>")
                         .attr({
+                            "href": "#",
                             "data-href": `#${makeClassName(title)}`,
                             class: "bookmark-goto"
                         })
@@ -226,6 +258,7 @@ async function constructToC(bookmarks, t = "") {
                 $("<li></li>").append(
                     $("<a></a>")
                         .attr({
+                            "href": "#",
                             "data-href": `#${makeClassName(title)}`,
                             class: "bookmark-goto"
                         })
@@ -282,6 +315,7 @@ function setListeners() {
         let id = $(evt.currentTarget).attr("data-href") ;
         $("html, body").animate({ scrollTop: $(id)?.offset()?.top-118 }) ;
         $tocMenu.prop("checked", false) ;
+        $("#toc-placeholder a.bookmark-goto").off("keydown") ;
     }) ;
 
     $(".bookmark-title span").off('click').on('click', (evt) => {
