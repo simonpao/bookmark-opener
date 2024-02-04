@@ -44,13 +44,21 @@ $searchInput.off('input').on("input", () => {
     if($searchInput.val() !== "") {
         $clearSearch.addClass("show");
 
+        // Hide all URLs that do not match search text
         let bookmarks = xmlDoc.getElementsByClassName('bookmark-url') ;
         for(let item of bookmarks) {
-            if(item?.text?.toLowerCase()?.match(new RegExp($searchInput?.val()?.toLowerCase())) === null) {
-                item.classList.add('hidden') ;
+            let searchTokens = $searchInput?.val()?.toLowerCase().split(' ') ;
+            let found = true ;
+            for(let token of searchTokens) {
+                if(token && item?.text?.toLowerCase()?.match(new RegExp(token)) === null) {
+                    found = false ;
+                    break ;
+                }
             }
+            if(!found) item.classList.add('hidden') ;
         }
 
+        // Hide all titles that now contain no children
         let elements = xmlDoc.querySelectorAll('.bookmark-url, .bookmark-title') ;
         let currentTitle ; let anyNotHidden = false ;
         for(let elem of elements) {
@@ -63,6 +71,10 @@ $searchInput.off('input').on("input", () => {
                 anyNotHidden = true;
             }
         }
+
+        // Remove last title in set if none of its children hidden
+        if (!anyNotHidden)
+            currentTitle?.classList.add('hidden');
     } else {
         $clearSearch.removeClass("show");
     }
