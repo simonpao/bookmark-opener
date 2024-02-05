@@ -12,4 +12,12 @@ It also allows you to filter bookmarks by name, then easily tab through the resu
 
 Easily accessible from the keyboard with the shortcut Ctrl+Shift+Period (".") or Control+Command+Period (".") on Mac, it can simplify your workflow and help you keep track of your important bookmarks.
 
+Other useful shortcuts include:
+
+ - Tab to cycle forward through bookmarks
+ - Shift+Tab to cycle backwards
+ - Ctrl+Period (Command+Period) to open Table of Contents
+ - Ctrl+LeftArrow to select the "open bookmarks in new tab" option
+ - Ctrl+RightArrow to select the "copy bookmarks to clipboard" option
+
 Download now and see how it can enhance your bookmark opening experience.
