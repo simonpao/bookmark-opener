@@ -133,12 +133,30 @@ $tocMenu.change((evt) => {
     } else {
         $everythingElse.off("click");
         $tocMenuItems.off("keydown") ;
+        $searchInput.focus() ;
     }
 }) ;
 
-function openToC() {
-    $tocMenu.prop("checked", true).focus() ;
+function toggleToC() {
+    let toggle = $tocMenu.prop("checked")
+    $tocMenu.prop("checked", !toggle).trigger("change") ;
 }
+
+chrome.commands.onCommand.addListener((command) => {
+    switch(command) {
+        case "toggle-table-of-contents":
+            toggleToC() ;
+            break ;
+        case "select-open":
+            $(`input#open-opt[name='open-or-copy-option']`).prop("checked", true) ;
+            break ;
+        case "select-copy":
+            $(`input#copy-opt[name='open-or-copy-option']`).prop("checked", true) ;
+            break ;
+        default:
+            console.log(`Command "${command}" triggered`);
+    }
+});
 
 setDarkMode(true) ;
 
@@ -244,6 +262,7 @@ async function constructToC(bookmarks, t = "") {
                 $("<li></li>").append(
                     $("<a></a>")
                         .attr({
+                            "tabindex": "-1",
                             "href": "#",
                             "data-href": `#${makeClassName(title)}`,
                             class: "bookmark-goto"
@@ -258,6 +277,7 @@ async function constructToC(bookmarks, t = "") {
                 $("<li></li>").append(
                     $("<a></a>")
                         .attr({
+                            "tabindex": "-1",
                             "href": "#",
                             "data-href": `#${makeClassName(title)}`,
                             class: "bookmark-goto"
