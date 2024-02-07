@@ -121,7 +121,7 @@ $tocMenu.change((evt) => {
                     if($(value).is(":focus"))
                         checkedItem = index ;
                 }) ;
-                if(evt.code === "ArrowUp" || evt.code === "ArrowRight") {
+                if(evt.code === "ArrowUp" || evt.code === "ArrowLeft") {
                     checkedItem = checkedItem - 1 < 0 ? $tocMenuItems.length - 1 : checkedItem - 1 ;
                 } else {
                     checkedItem = checkedItem + 1 >= $tocMenuItems.length ? 0 : checkedItem + 1 ;
@@ -148,10 +148,10 @@ chrome.commands.onCommand.addListener((command) => {
             toggleToC() ;
             break ;
         case "select-open":
-            $(`input#open-opt[name='open-or-copy-option']`).prop("checked", true) ;
+            $(`input#open-opt[name='open-or-copy-option']`).prop("checked", true).trigger("change") ;
             break ;
         case "select-copy":
-            $(`input#copy-opt[name='open-or-copy-option']`).prop("checked", true) ;
+            $(`input#copy-opt[name='open-or-copy-option']`).prop("checked", true).trigger("change") ;
             break ;
         default:
             console.log(`Command "${command}" triggered`);
