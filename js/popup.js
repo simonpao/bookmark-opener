@@ -142,7 +142,29 @@ function toggleToC() {
     $tocMenu.prop("checked", !toggle).trigger("change") ;
 }
 
+window.addEventListener("keyup", (evt) =>{
+    if(evt.getModifierState("Control")) {
+        evt.preventDefault() ;
+        switch (evt.code) {
+            case "ArrowRight":
+                executeCommand("select-copy");
+                break;
+            case "ArrowLeft":
+                executeCommand("select-open");
+                break;
+            case "Period":
+                if(!evt.getModifierState("Shift"))
+                    executeCommand("toggle-table-of-contents");
+                break;
+        }
+    }
+}) ;
+
 chrome.commands.onCommand.addListener((command) => {
+    executeCommand(command) ;
+});
+
+function executeCommand(command) {
     switch(command) {
         case "toggle-table-of-contents":
             toggleToC() ;
@@ -156,7 +178,7 @@ chrome.commands.onCommand.addListener((command) => {
         default:
             console.log(`Command "${command}" triggered`);
     }
-});
+}
 
 setDarkMode(true) ;
 

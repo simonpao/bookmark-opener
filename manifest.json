@@ -18,30 +18,6 @@
         "default": "Ctrl+Shift+Period",
         "mac": "MacCtrl+Command+Period"
       }
-    },
-    "toggle-table-of-contents": {
-      "suggested_key": {
-        "default": "Ctrl+Period",
-        "mac": "Command+Period"
-      },
-      "description": "Open/close table of contents",
-      "global": false
-    },
-    "select-open": {
-      "suggested_key": {
-        "default": "Ctrl+Left",
-        "mac": "Command+Left"
-      },
-      "description": "Open bookmarks in new tabs",
-      "global": false
-    },
-    "select-copy": {
-      "suggested_key": {
-        "default": "Ctrl+Right",
-        "mac": "Command+Right"
-      },
-      "description": "Copy bookmark URL to clipboard",
-      "global": false
     }
   },
   "permissions": [
