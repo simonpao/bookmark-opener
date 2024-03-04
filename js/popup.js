@@ -9,6 +9,7 @@ const $clearTabGroup = $("#clear-tab-group-input") ;
 const $searchInput = $("#search-input") ;
 const $clearSearch = $("#clear-search-input") ;
 const $everythingElse = $("header, #bookmarks-placeholder, li a") ;
+const CACHE_EXPIRE = 60000 ; // milliseconds
 let folderHierarchy ;
 let showingNewBookmarkWindow = false ;
 let folderHierarchySelections = [] ;
@@ -235,6 +236,7 @@ function showNewBookmarkWindow() {
 
 function saveNewBookmark(title, url, folder) {
 
+    loadBookmarks() ;
     closeNewBookmarkWindow() ;
 }
 
@@ -293,8 +295,6 @@ function hideDataBelowNewBookmarkFolderInput() {
     let suggested = document.getElementById("new-bookmark-folder-suggested-data") ;
     suggested.classList.remove("show") ;
 }
-
-setDarkMode(true) ;
 
 function showMessage(type) {
     let $elem = $(`.snackbar.${type}`) ;
@@ -429,8 +429,11 @@ async function constructHierarchy(bookmarks) {
     let array = [] ;
     for(let item of bookmarks) {
         let obj = {} ;
-        if(item.title && item.children && item.children.length)
-            obj.title = item.title ;
+        if(item.title && item.children && item.children.length) {
+            obj.title = item.title;
+            obj.id = item.id ;
+            obj.parentId = item.parentId ;
+        }
         if(item.children && item.children.length) {
             let children = await constructHierarchy(item.children) ;
             if(children.length > 0)
@@ -475,6 +478,8 @@ function setListeners() {
         urlOnClick(url, groupName || title);
     }
 
+    setDarkMode(false) ;
+
     $bookmarkUrl.off('click').on('click', bookmarkClick) ;
 
     $bookmarkUrl.off('keypress').on('keypress', (evt) => {
@@ -502,10 +507,49 @@ function setListeners() {
     }) ;
 }
 
+function loadBookmarks(timestamp) {
+    let $tocPlaceholder = $("#toc-placeholder");
+    let $appThemeButton = $("#app-theme-toggle--button") ;
+    let $versionDiv = $("#version--div") ;
+    let $bookmarksPlaceholder = $("#bookmarks-placeholder") ;
+    let $loadingSpinner = $("#loading-spinner") ;
+
+    $tocPlaceholder.html("") ;
+    $tocPlaceholder.append($appThemeButton) ;
+    $tocPlaceholder.append($versionDiv) ;
+    $bookmarksPlaceholder.html("") ;
+    $bookmarksPlaceholder.append($loadingSpinner) ;
+    $loadingSpinner.addClass("show");
+
+    chrome.bookmarks.getTree().then(async (bookmarks) => {
+        bookmarks = sortBookmarks(bookmarks);
+
+        let [, list, hierarchy] = await Promise.all([
+            processLevel(bookmarks[0].children, 1),
+            constructToC(bookmarks[0].children),
+            constructHierarchy(bookmarks[0].children)
+        ]);
+
+        folderHierarchy = hierarchy ;
+        $tocPlaceholder.append(list);
+        $("#toc-placeholder > ul > li > ul").addClass("show");
+        $("#loading-spinner").removeClass("show");
+
+        setLocalStorage('list-cache', {
+            processLevelResult: $("#bookmarks-placeholder").html(),
+            constructToCResult: $tocPlaceholder.html(),
+            constructHierarchyResult: JSON.stringify(hierarchy),
+            created: timestamp,
+            expires: timestamp + CACHE_EXPIRE
+        });
+
+        setListeners();
+    });
+}
+
 (() => {
     let cache = getLocalStorage('list-cache') ;
     let timestamp = new Date().getTime() ;
-    const CACHE_EXPIRE = 60000 ; // milliseconds
 
     if(typeof cache === "object" &&
        cache.hasOwnProperty("processLevelResult") &&
@@ -519,30 +563,8 @@ function setListeners() {
         setDarkMode(false) ;
         setListeners();
     } else {
-        chrome.bookmarks.getTree().then(async (bookmarks) => {
-            bookmarks = sortBookmarks(bookmarks);
-
-            let [, list, hierarchy] = await Promise.all([
-                processLevel(bookmarks[0].children, 1),
-                constructToC(bookmarks[0].children),
-                constructHierarchy(bookmarks[0].children)
-            ]);
-
-            folderHierarchy = hierarchy ;
-            let $tocPlaceholder = $("#toc-placeholder");
-            $tocPlaceholder.append(list);
-            $("#toc-placeholder > ul > li > ul").addClass("show");
-            $("#loading-spinner").removeClass("show");
-
-            setLocalStorage('list-cache', {
-                processLevelResult: $("#bookmarks-placeholder").html(),
-                constructToCResult: $tocPlaceholder.html(),
-                constructHierarchyResult: JSON.stringify(hierarchy),
-                created: timestamp,
-                expires: timestamp + CACHE_EXPIRE
-            });
-
-            setListeners();
-        });
+        loadBookmarks(timestamp) ;
     }
 })() ;
+
+setDarkMode(true) ;
