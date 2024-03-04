@@ -556,6 +556,11 @@ function setListeners() {
 
     setDarkMode(false) ;
 
+    $("#add-new-bookmark--button").on('click', evt => {
+        $tocMenu.prop("checked", false).trigger("change") ;
+        showNewBookmarkWindow() ;
+    }) ;
+
     $bookmarkUrl.off('click').on('click', bookmarkClick) ;
 
     $bookmarkUrl.off('keypress').on('keypress', (evt) => {
@@ -585,12 +590,14 @@ function setListeners() {
 
 function loadBookmarks(timestamp) {
     let $tocPlaceholder = $("#toc-placeholder");
+    let $newBookmarkButton = $("#add-new-bookmark--button") ;
     let $appThemeButton = $("#app-theme-toggle--button") ;
     let $versionDiv = $("#version--div") ;
     let $bookmarksPlaceholder = $("#bookmarks-placeholder") ;
     let $loadingSpinner = $("#loading-spinner") ;
 
     $tocPlaceholder.html("") ;
+    $tocPlaceholder.append($newBookmarkButton) ;
     $tocPlaceholder.append($appThemeButton) ;
     $tocPlaceholder.append($versionDiv) ;
     $bookmarksPlaceholder.html("") ;

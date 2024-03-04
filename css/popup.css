@@ -228,6 +228,7 @@ body.dark #toc-placeholder {
     border-bottom: 5px solid var(--off-white) ;
 }
 
+#add-new-bookmark--button,
 #app-theme-toggle--button {
     background-color: var(--dark) ;
     color: var(--off-white) ;
@@ -236,17 +237,28 @@ body.dark #toc-placeholder {
     border: 1px solid var(--dark) ;
 }
 
+#add-new-bookmark--button {
+    top: 62px;
+}
+
+#app-theme-toggle--button {
+    top: 105px;
+}
+
+#add-new-bookmark--button:hover,
 #app-theme-toggle--button:hover {
     background-color: var(--off-white) ;
     color: var(--dark) ;
 }
 
+body.dark #add-new-bookmark--button,
 body.dark #app-theme-toggle--button {
     background-color: var(--off-white) ;
     color: var(--dark) ;
     border: 1px solid var(--off-white) ;
 }
 
+body.dark #add-new-bookmark--button:hover,
 body.dark #app-theme-toggle--button:hover {
     background-color: var(--dark) ;
     color: var(--off-white) ;
