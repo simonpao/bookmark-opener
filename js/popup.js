@@ -9,6 +9,8 @@ const $clearTabGroup = $("#clear-tab-group-input") ;
 const $searchInput = $("#search-input") ;
 const $clearSearch = $("#clear-search-input") ;
 const $everythingElse = $("header, #bookmarks-placeholder, li a") ;
+let folderHierarchy ;
+let showingNewBookmarkWindow = false ;
 let timeout ;
 
 manifest.then((man) => {
@@ -142,20 +144,39 @@ function toggleToC() {
     $tocMenu.prop("checked", !toggle).trigger("change") ;
 }
 
-window.addEventListener("keyup", (evt) =>{
+window.addEventListener("keydown", (evt) =>{
     if(evt.getModifierState("Control")) {
-        evt.preventDefault() ;
         switch (evt.code) {
             case "ArrowRight":
+                evt.preventDefault() ;
                 executeCommand("select-copy");
                 break;
             case "ArrowLeft":
+                evt.preventDefault() ;
                 executeCommand("select-open");
                 break;
             case "Period":
-                if(!evt.getModifierState("Shift"))
+                if(!evt.getModifierState("Shift")) {
+                    evt.preventDefault() ;
                     executeCommand("toggle-table-of-contents");
+                }
                 break;
+            case "Slash":
+                evt.preventDefault() ;
+                executeCommand("create-new-bookmark");
+                break;
+        }
+    } else if(showingNewBookmarkWindow) {
+        switch(evt.code) {
+            case "Escape":
+                evt.preventDefault() ;
+                executeCommand("close-new-bookmark");
+                break ;
+            case "Enter":
+                evt.preventDefault() ;
+                executeCommand("save-new-bookmark");
+                break ;
+
         }
     }
 }) ;
@@ -175,9 +196,50 @@ function executeCommand(command) {
         case "select-copy":
             $(`input#copy-opt[name='open-or-copy-option']`).prop("checked", true).trigger("change") ;
             break ;
+        case "create-new-bookmark":
+            showNewBookmarkWindow() ;
+            break ;
+        case "close-new-bookmark":
+            closeNewBookmarkWindow() ;
+            break ;
+        case "save-new-bookmark":
+            saveNewBookmark() ;
+            break ;
         default:
             console.log(`Command "${command}" triggered`);
     }
+}
+
+function showNewBookmarkWindow() {
+    chrome.tabs.query({active: true}, tabs => {
+        if(tabs.length) {
+            showingNewBookmarkWindow = true;
+            const $newBookmarkTitleInput = $("#new-bookmark-title") ;
+            $newBookmarkTitleInput.val(tabs[0]?.title) ;
+            $("#new-bookmark-url").val(tabs[0]?.url) ;
+            $("#new-bookmark-window--div").addClass("show");
+            $newBookmarkTitleInput.select().focus() ;
+
+            const dataList = $("#new-bookmark-folders-list") ;
+            for(let item of folderHierarchy) {
+                dataList.append($("<option>").val(item.title)) ;
+            }
+        } else {
+            showMessage("error-query-tab") ;
+        }
+    });
+}
+
+function saveNewBookmark(title, url, folder) {
+
+    closeNewBookmarkWindow() ;
+}
+
+function closeNewBookmarkWindow() {
+    showingNewBookmarkWindow = false ;
+    $("#new-bookmark-window--div").removeClass("show") ;
+    $("#new-bookmark-title").val("") ;
+    $("#new-bookmark-url").val("") ;
 }
 
 setDarkMode(true) ;
@@ -311,6 +373,23 @@ async function constructToC(bookmarks, t = "") {
     return $list ;
 }
 
+async function constructHierarchy(bookmarks) {
+    let array = [] ;
+    for(let item of bookmarks) {
+        let obj = {} ;
+        if(item.title && item.children && item.children.length)
+            obj.title = item.title ;
+        if(item.children && item.children.length) {
+            let children = await constructHierarchy(item.children) ;
+            if(children.length > 0)
+                obj.children = children ;
+        }
+        if(typeof obj.title === "string")
+            array.push(obj) ;
+    }
+    return array ;
+}
+
 function sortBookmarks(bookmarks) {
     for(let i in bookmarks) {
         if(bookmarks[i].hasOwnProperty('children'))
@@ -379,7 +458,9 @@ function setListeners() {
     if(typeof cache === "object" &&
        cache.hasOwnProperty("processLevelResult") &&
        cache.hasOwnProperty("constructToCResult") &&
+       cache.hasOwnProperty("constructHierarchyResult") &&
        timestamp < cache.expires) {
+        folderHierarchy = JSON.parse(cache.constructHierarchyResult) ;
         $("#loading-spinner").removeClass("show") ;
         $("#bookmarks-placeholder").html(cache.processLevelResult) ;
         $("#toc-placeholder").html(cache.constructToCResult) ;
@@ -389,11 +470,13 @@ function setListeners() {
         chrome.bookmarks.getTree().then(async (bookmarks) => {
             bookmarks = sortBookmarks(bookmarks);
 
-            let [, list] = await Promise.all([
+            let [, list, hierarchy] = await Promise.all([
                 processLevel(bookmarks[0].children, 1),
-                constructToC(bookmarks[0].children)
+                constructToC(bookmarks[0].children),
+                constructHierarchy(bookmarks[0].children)
             ]);
 
+            folderHierarchy = hierarchy ;
             let $tocPlaceholder = $("#toc-placeholder");
             $tocPlaceholder.append(list);
             $("#toc-placeholder > ul > li > ul").addClass("show");
@@ -402,6 +485,7 @@ function setListeners() {
             setLocalStorage('list-cache', {
                 processLevelResult: $("#bookmarks-placeholder").html(),
                 constructToCResult: $tocPlaceholder.html(),
+                constructHierarchyResult: JSON.stringify(hierarchy),
                 created: timestamp,
                 expires: timestamp + CACHE_EXPIRE
             });
