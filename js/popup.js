@@ -235,7 +235,7 @@ function showNewBookmarkWindow() {
 }
 
 function saveNewBookmark(title, url, folder) {
-
+    // TODO: save the bookmark
     loadBookmarks() ;
     closeNewBookmarkWindow() ;
 }
@@ -269,7 +269,9 @@ function processNewBookmarkFolderInput(evt) {
             evt.preventDefault();
             let text = $input.val().split("/") ;
             text[text.length-2] = folderHierarchyFiltered[0].title ;
+            folderHierarchySelections.push(parseInt(folderHierarchyFiltered[0].index)) ;
             $input.val(text.join("/")) ;
+            updateDataBelowNewBookmarkFolderInput(evt) ;
             break ;
     }
 }
@@ -281,11 +283,18 @@ function updateDataBelowNewBookmarkFolderInput(evt) {
     let suggested = document.getElementById("new-bookmark-folder-suggested-data") ;
     suggested.innerHTML = "" ;
     let text = $input.val() ;
-    for(let i in folderHierarchy) if(folderHierarchy.hasOwnProperty(i)) {
-        if(folderHierarchy[i]?.title?.toLowerCase()?.startsWith(text?.toLowerCase())) {
+
+    let fh = folderHierarchy ;
+    for(let index of folderHierarchySelections)
+        fh = fh[index].children ;
+
+    for(let i in fh) if(fh.hasOwnProperty(i)) {
+        let currentFolder = text.split("/") ;
+        currentFolder = currentFolder[currentFolder.length-1] ;
+        if(fh[i]?.title?.toLowerCase()?.startsWith(currentFolder?.toLowerCase())) {
             const listItem = document.createElement("li");
-            listItem.innerText = folderHierarchy[i].title;
-            folderHierarchyFiltered.push({ title: folderHierarchy[i].title, index: i}) ;
+            listItem.innerText = fh[i].title;
+            folderHierarchyFiltered.push({ title: fh[i].title, index: i}) ;
             suggested.appendChild(listItem);
         }
     }
