@@ -206,7 +206,10 @@ function executeCommand(command) {
             closeNewBookmarkWindow() ;
             break ;
         case "save-new-bookmark":
-            saveNewBookmark() ;
+            saveNewBookmark().then(() => {
+                loadBookmarks() ;
+                closeNewBookmarkWindow() ;
+            }) ;
             break ;
         default:
             console.log(`Command "${command}" triggered`);
@@ -234,10 +237,61 @@ function showNewBookmarkWindow() {
     });
 }
 
-function saveNewBookmark(title, url, folder) {
-    // TODO: save the bookmark
-    loadBookmarks() ;
-    closeNewBookmarkWindow() ;
+async function saveNewBookmark() {
+    if(!folderHierarchySelections.length) {
+        showMessage("error-select-folder") ;
+        return ;
+    }
+
+    let folder = $("#new-bookmark-folder").val().split("/") ;
+    let title  = $("#new-bookmark-title").val() ;
+    let url    = $("#new-bookmark-url").val() ;
+
+    if(folder[folder.length-1] !== "")
+        folderHierarchySelections.push("new") ;
+
+    let parentId ;
+    let fh = folderHierarchy ;
+    let fhs = folderHierarchySelections ;
+    for(let i in fhs) if(fhs.hasOwnProperty(i)) {
+        if(fhs[i] === "new") {
+            if(title && parentId) {
+                let newFolder = await createFolder(folder[i], parentId);
+                fh = newFolder.children ;
+                parentId = newFolder.id ;
+            }
+        } else {
+            parentId = fh[fhs[i]].id ;
+            fh = fh[fhs[i]].children ;
+        }
+    }
+
+    await createBookmark(title, url, parentId) ;
+}
+
+async function createBookmark(title, url, folderId) {
+    return new Promise((resolve) => {
+        chrome.bookmarks.create({
+            parentId: folderId.toString(),
+            title: title,
+            url: url,
+        }, newBookmark => {
+            resolve(newBookmark) ;
+        });
+    }) ;
+}
+
+async function createFolder(title, parentId) {
+    return new Promise((resolve) => {
+        chrome.bookmarks.create(
+            {
+                parentId: parentId.toString(),
+                title: title
+            }, newFolder => {
+                resolve(newFolder) ;
+            },
+        );
+    }) ;
 }
 
 function closeNewBookmarkWindow() {
@@ -268,8 +322,12 @@ function processNewBookmarkFolderInput(evt) {
         case "Slash":
             evt.preventDefault();
             let text = $input.val().split("/") ;
-            text[text.length-2] = folderHierarchyFiltered[0].title ;
-            folderHierarchySelections.push(parseInt(folderHierarchyFiltered[0].index)) ;
+            if(folderHierarchyFiltered.length) {
+                text[text.length-2] = folderHierarchyFiltered[0].title ;
+                folderHierarchySelections.push(parseInt(folderHierarchyFiltered[0].index)) ;
+            } else {
+                folderHierarchySelections.push("new") ;
+            }
             $input.val(text.join("/")) ;
             updateDataBelowNewBookmarkFolderInput(evt) ;
             break ;
@@ -285,18 +343,27 @@ function updateDataBelowNewBookmarkFolderInput(evt) {
     let text = $input.val() ;
 
     let fh = folderHierarchy ;
-    for(let index of folderHierarchySelections)
+    let index ;
+    for(index of folderHierarchySelections) {
+        if(index === "new") break ;
         fh = fh[index].children ;
+    }
 
-    for(let i in fh) if(fh.hasOwnProperty(i)) {
-        let currentFolder = text.split("/") ;
-        currentFolder = currentFolder[currentFolder.length-1] ;
-        if(fh[i]?.title?.toLowerCase()?.startsWith(currentFolder?.toLowerCase())) {
-            const listItem = document.createElement("li");
-            listItem.innerText = fh[i].title;
-            folderHierarchyFiltered.push({ title: fh[i].title, index: i}) ;
-            suggested.appendChild(listItem);
+    if(index !== "new") {
+        for(let i in fh) if(fh.hasOwnProperty(i)) {
+            let currentFolder = text.split("/") ;
+            currentFolder = currentFolder[currentFolder.length-1] ;
+            if(fh[i]?.title?.toLowerCase()?.startsWith(currentFolder?.toLowerCase())) {
+                const listItem = document.createElement("li");
+                listItem.innerText = fh[i].title;
+                folderHierarchyFiltered.push({ title: fh[i].title, index: i}) ;
+                suggested.appendChild(listItem);
+            }
         }
+    } else {
+        const listItem = document.createElement("li");
+        listItem.innerText = "New Folder";
+        suggested.appendChild(listItem);
     }
 }
 
