@@ -11,6 +11,8 @@ const $clearSearch = $("#clear-search-input") ;
 const $everythingElse = $("header, #bookmarks-placeholder, li a") ;
 let folderHierarchy ;
 let showingNewBookmarkWindow = false ;
+let folderHierarchySelections = [] ;
+let folderHierarchyFiltered = [] ;
 let timeout ;
 
 manifest.then((man) => {
@@ -220,10 +222,11 @@ function showNewBookmarkWindow() {
             $("#new-bookmark-window--div").addClass("show");
             $newBookmarkTitleInput.select().focus() ;
 
-            const dataList = $("#new-bookmark-folders-list") ;
-            for(let item of folderHierarchy) {
-                dataList.append($("<option>").val(item.title)) ;
-            }
+            let $input = $("#new-bookmark-folder") ;
+            $input.on("focusin", showDataBelowNewBookmarkFolderInput) ;
+            $input.on("input", updateDataBelowNewBookmarkFolderInput) ;
+            $input.on("keyup", processNewBookmarkFolderInput) ;
+            $input.on("focusout", hideDataBelowNewBookmarkFolderInput) ;
         } else {
             showMessage("error-query-tab") ;
         }
@@ -240,6 +243,55 @@ function closeNewBookmarkWindow() {
     $("#new-bookmark-window--div").removeClass("show") ;
     $("#new-bookmark-title").val("") ;
     $("#new-bookmark-url").val("") ;
+
+    let $input = $("#new-bookmark-folder") ;
+    $input.off("focusin", showDataBelowNewBookmarkFolderInput) ;
+    $input.off("input", updateDataBelowNewBookmarkFolderInput) ;
+    $input.off("keyup", processNewBookmarkFolderInput) ;
+    $input.off("focusout", hideDataBelowNewBookmarkFolderInput) ;
+}
+
+function showDataBelowNewBookmarkFolderInput(evt) {
+    let suggested = document.getElementById("new-bookmark-folder-suggested-data") ;
+    updateDataBelowNewBookmarkFolderInput(evt) ;
+    suggested.classList.add("show") ;
+}
+
+function processNewBookmarkFolderInput(evt) {
+    let $input = $("#new-bookmark-folder") ;
+    switch(evt.originalEvent.code) {
+        case "ArrowRight":
+            evt.preventDefault();
+            $input.val( $input.val() + "/" ) ;
+        case "Slash":
+            evt.preventDefault();
+            let text = $input.val().split("/") ;
+            text[text.length-2] = folderHierarchyFiltered[0].title ;
+            $input.val(text.join("/")) ;
+            break ;
+    }
+}
+
+function updateDataBelowNewBookmarkFolderInput(evt) {
+    if(evt.originalEvent.data === "/") return ;
+    let $input = $("#new-bookmark-folder") ;
+    folderHierarchyFiltered = [] ;
+    let suggested = document.getElementById("new-bookmark-folder-suggested-data") ;
+    suggested.innerHTML = "" ;
+    let text = $input.val() ;
+    for(let i in folderHierarchy) if(folderHierarchy.hasOwnProperty(i)) {
+        if(folderHierarchy[i]?.title?.toLowerCase()?.startsWith(text?.toLowerCase())) {
+            const listItem = document.createElement("li");
+            listItem.innerText = folderHierarchy[i].title;
+            folderHierarchyFiltered.push({ title: folderHierarchy[i].title, index: i}) ;
+            suggested.appendChild(listItem);
+        }
+    }
+}
+
+function hideDataBelowNewBookmarkFolderInput() {
+    let suggested = document.getElementById("new-bookmark-folder-suggested-data") ;
+    suggested.classList.remove("show") ;
 }
 
 setDarkMode(true) ;

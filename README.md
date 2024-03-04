@@ -16,8 +16,9 @@ Other useful shortcuts include:
 
  - Tab to cycle forward through bookmarks
  - Shift+Tab to cycle backwards
- - Ctrl+Period (Command+Period) to open Table of Contents
+ - Ctrl+Period to open Table of Contents
  - Ctrl+LeftArrow to select the "open bookmarks in new tab" option
  - Ctrl+RightArrow to select the "copy bookmarks to clipboard" option
+ - Ctrl+ForwardSlash (/) to save a new bookmark
 
 Download now and see how it can enhance your bookmark opening experience.
