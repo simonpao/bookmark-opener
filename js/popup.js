@@ -8,13 +8,16 @@ const $tabGroup = $("#tab-group") ;
 const $clearTabGroup = $("#clear-tab-group-input") ;
 const $searchInput = $("#search-input") ;
 const $clearSearch = $("#clear-search-input") ;
+const $clearInput = $("#clear-folder-input") ;
 const $everythingElse = $("header, #bookmarks-placeholder, li a") ;
 const CACHE_EXPIRE = 60000 ; // milliseconds
 let folderHierarchy ;
 let showingNewBookmarkWindow = false ;
 let folderHierarchySelections = [] ;
 let folderHierarchyFiltered = [] ;
+let folderEntryChars = [] ;
 let timeout ;
+
 
 manifest.then((man) => {
     $("#version--div").text(`v. ${man.version}`) ;
@@ -97,6 +100,8 @@ $clearSearch.off('click').on('click', () => {
     $("#bookmarks-placeholder").html(xmlDoc.getRootNode().getElementsByTagName('body')[0].innerHTML) ;
     setListeners();
 }) ;
+
+$clearInput.off('input').on('click', clearFolderInput) ;
 
 $clearTabGroup.click(() => {
     $tabGroup.val("") ;
@@ -206,9 +211,11 @@ function executeCommand(command) {
             closeNewBookmarkWindow() ;
             break ;
         case "save-new-bookmark":
-            saveNewBookmark().then(() => {
-                loadBookmarks() ;
-                closeNewBookmarkWindow() ;
+            saveNewBookmark().then(res => {
+                if(res) {
+                    loadBookmarks();
+                    closeNewBookmarkWindow();
+                }
             }) ;
             break ;
         default:
@@ -240,7 +247,7 @@ function showNewBookmarkWindow() {
 async function saveNewBookmark() {
     if(!folderHierarchySelections.length) {
         showMessage("error-select-folder") ;
-        return ;
+        return false ;
     }
 
     let folder = $("#new-bookmark-folder").val().split("/") ;
@@ -267,6 +274,7 @@ async function saveNewBookmark() {
     }
 
     await createBookmark(title, url, parentId) ;
+    return true ;
 }
 
 async function createBookmark(title, url, folderId) {
@@ -301,42 +309,107 @@ function closeNewBookmarkWindow() {
     $("#new-bookmark-url").val("") ;
 
     let $input = $("#new-bookmark-folder") ;
+    hideDataBelowNewBookmarkFolderInput() ;
     $input.off("focusin", showDataBelowNewBookmarkFolderInput) ;
     $input.off("input", updateDataBelowNewBookmarkFolderInput) ;
     $input.off("keyup", processNewBookmarkFolderInput) ;
     $input.off("focusout", hideDataBelowNewBookmarkFolderInput) ;
+    clearFolderInput() ;
+
+    $searchInput.focus() ;
+}
+
+function clearFolderInput() {
+    let $input = $("#new-bookmark-folder") ;
+    folderHierarchySelections = [] ;
+    folderHierarchyFiltered = [] ;
+    folderEntryChars = [] ;
+    $input.val("") ;
 }
 
 function showDataBelowNewBookmarkFolderInput(evt) {
     let suggested = document.getElementById("new-bookmark-folder-suggested-data") ;
-    updateDataBelowNewBookmarkFolderInput(evt) ;
+    updateDataBelowNewBookmarkFolderInput(evt, false) ;
     suggested.classList.add("show") ;
 }
 
 function processNewBookmarkFolderInput(evt) {
     let $input = $("#new-bookmark-folder") ;
+    let insertFolderName = () => {
+        let text = $input.val().split("/") ;
+        if(folderHierarchyFiltered.length) {
+            text[text.length-2] = folderHierarchyFiltered[0].title ;
+            folderHierarchySelections.push(parseInt(folderHierarchyFiltered[0].index)) ;
+        } else {
+            folderHierarchySelections.push("new") ;
+        }
+        $input.val(text.join("/")) ;
+        updateDataBelowNewBookmarkFolderInput(evt, false) ;
+    } ;
+
     switch(evt.originalEvent.code) {
         case "ArrowRight":
             evt.preventDefault();
+            if(folderEntryChars[folderEntryChars.length-1] === "/")
+                return ;
             $input.val( $input.val() + "/" ) ;
+            insertFolderName() ;
+            break ;
         case "Slash":
             evt.preventDefault();
-            let text = $input.val().split("/") ;
-            if(folderHierarchyFiltered.length) {
-                text[text.length-2] = folderHierarchyFiltered[0].title ;
-                folderHierarchySelections.push(parseInt(folderHierarchyFiltered[0].index)) ;
+            if(folderEntryChars[folderEntryChars.length-1] === "/")
+                return ;
+            insertFolderName() ;
+            break ;
+        case "Delete":
+            evt.preventDefault();
+            clearFolderInput();
+            updateDataBelowNewBookmarkFolderInput(evt, false) ;
+            break ;
+        case "Backspace":
+            evt.preventDefault();
+            if(folderEntryChars[folderEntryChars.length-1] === "/")
+                return ;
+            let i ;
+            for(i = folderEntryChars.length-1; i >= 0; i--)
+                if(folderEntryChars[i] === "/") {
+                    i ++ ; break ;
+                }
+            if(i === -1) {
+                folderEntryChars = [];
+                $input.val("");
             } else {
-                folderHierarchySelections.push("new") ;
+                folderEntryChars.splice(i);
+                $input.val(folderEntryChars.join(""));
             }
-            $input.val(text.join("/")) ;
-            updateDataBelowNewBookmarkFolderInput(evt) ;
+            updateDataBelowNewBookmarkFolderInput(evt, false) ;
             break ;
     }
 }
 
-function updateDataBelowNewBookmarkFolderInput(evt) {
-    if(evt.originalEvent.data === "/") return ;
+function updateDataBelowNewBookmarkFolderInput(evt, fromInput = true) {
     let $input = $("#new-bookmark-folder") ;
+    let $clearInput = $("#clear-folder-input") ;
+
+    if(fromInput && evt.originalEvent.data === "/") {
+        if(folderEntryChars[folderEntryChars.length-1] === "/")
+            $input.val(folderEntryChars.join("")) ;
+        return ;
+    }
+
+    if(fromInput && evt.originalEvent.inputType &&
+        (evt.originalEvent.inputType !== "insertText" ||
+       evt.target.selectionStart-1 !== folderEntryChars.length)) {
+        $input.val(folderEntryChars.join("")) ;
+    }
+
+    folderEntryChars = $input.val().split("") ;
+    if(folderEntryChars.length) {
+        $clearInput.addClass("show") ;
+    } else {
+        $clearInput.removeClass("show") ;
+    }
+
     folderHierarchyFiltered = [] ;
     let suggested = document.getElementById("new-bookmark-folder-suggested-data") ;
     suggested.innerHTML = "" ;

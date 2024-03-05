@@ -95,6 +95,7 @@ header h1 {
     width: 96%;
 }
 
+#clear-folder-input,
 #clear-search-input,
 #clear-tab-group-input {
     display: none;
@@ -106,6 +107,12 @@ header h1 {
     cursor: pointer;
 }
 
+#clear-folder-input {
+    top: -9px;
+    right: 39px;
+}
+
+#clear-folder-input.show,
 #clear-search-input.show,
 #clear-tab-group-input.show {
     display: inline;
@@ -334,6 +341,10 @@ body.dark #version--div {
     text-align: center;
     background-color: var(--off-white);
     border: 2px solid var(--dark) ;
+}
+
+#new-bookmark-folder-label {
+    position: relative;
 }
 
 #new-bookmark-folder-suggested-data.show,
