@@ -234,7 +234,7 @@ function showNewBookmarkWindow() {
 }
 
 async function saveNewBookmark() {
-    if(!folderHierarchySelections.length) {
+    if(!pathInput.selection.length) {
         showMessage("error-select-folder") ;
         return false ;
     }
@@ -244,11 +244,11 @@ async function saveNewBookmark() {
     let url    = $("#new-bookmark-url").val() ;
 
     if(folder[folder.length-1] !== "")
-        folderHierarchySelections.push("new") ;
+        pathInput.selection.push("new") ;
 
     let parentId ;
-    let fh = folderHierarchy ;
-    let fhs = folderHierarchySelections ;
+    let fh = pathInput.pathHierarchy ;
+    let fhs = pathInput.selection ;
     for(let i in fhs) if(fhs.hasOwnProperty(i)) {
         if(fhs[i] === "new") {
             if(title && parentId) {
@@ -570,8 +570,8 @@ function loadBookmarks(timestamp) {
        cache.hasOwnProperty("constructToCResult") &&
        cache.hasOwnProperty("constructHierarchyResult") &&
        timestamp < cache.expires) {
-        let folderHierarchy = JSON.parse(cache.constructHierarchyResult) ;
-        pathInput = new PathInput( "new-bookmark-folder", folderHierarchy ) ;
+        let hierarchy = JSON.parse(cache.constructHierarchyResult) ;
+        pathInput = new PathInput( "new-bookmark-folder", hierarchy ) ;
         $("#loading-spinner").removeClass("show") ;
         $("#bookmarks-placeholder").html(cache.processLevelResult) ;
         $("#toc-placeholder").html(cache.constructToCResult) ;
