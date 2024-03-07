@@ -1,11 +1,16 @@
 class PathInput {
 
     pathHierarchy = {} ;
-    options = {} ;
+    options = {
+        fontSize: 20
+    } ;
     selection = [] ;
     filtered = [] ;
+    filterIndex = 0 ;
     chars = [] ;
     enabled = false ;
+
+    static slash = "\uFF0F" ;
 
     /**
      * @param id
@@ -34,19 +39,27 @@ class PathInput {
      */
     constructor(id, pathHierarchy, options = {}) {
         this.id = id ;
-        this.options = options ;
+        this.options = { ...this.options, ...options } ;
         this.pathHierarchy = pathHierarchy ;
         this.input = document.getElementById(id) ;
         this.input.classList.add("path-input--input") ;
         this.input.title = "Separate folders with a slash ('/')" ;
+        this.input.value = PathInput.slash ;
 
-        // Move input into parent label
         let parent = this.input.parentNode ;
         this.inputContainer = document.createElement("label") ;
         this.inputContainer.id = `${id}--label` ;
         this.inputContainer.htmlFor = id ;
         this.inputContainer.classList.add("path-input--label") ;
         parent.replaceChild(this.inputContainer, this.input) ;
+
+        // Insert a new span for background text
+        this.backgroundText = document.createElement("span") ;
+        this.backgroundText.id = `${id}-background-text--span` ;
+        this.backgroundText.classList.add("path-input-background-text--span") ;
+        this.inputContainer.appendChild(this.backgroundText);
+
+        // Move input into parent label
         this.inputContainer.appendChild(this.input);
 
         // Insert a new span clear button
@@ -63,6 +76,7 @@ class PathInput {
         this.inputContainer.appendChild(this.suggestions);
     }
 
+    // Add event listeners
     enable() {
         this.input.addEventListener("focusin", this.show.bind(this)) ;
         this.input.addEventListener("input", this.update.bind(this)) ;
@@ -73,6 +87,7 @@ class PathInput {
         this.enabled = true ;
     }
 
+    // Remove event listeners
     disable() {
         this.input.removeEventListener("focusin", this.show.bind(this)) ;
         this.input.removeEventListener("input", this.update.bind(this)) ;
@@ -83,13 +98,15 @@ class PathInput {
         this.enabled = false ;
     }
 
+    // Clear the input value
     clear() {
         this.selection = [] ;
         this.filtered = [] ;
         this.chars = [] ;
-        this.input.value = "" ;
+        this.input.value = PathInput.slash ;
     }
 
+    // Show the suggestions box
     show(evt) {
         this.update(evt, false) ;
         this.suggestions.classList.add("show") ;
@@ -97,29 +114,46 @@ class PathInput {
 
     process(evt) {
         let insertPathName = () => {
-            let text = this.input.value.split("/") ;
+            let text = this.input.value.split(PathInput.slash) ;
             if(this.filtered.length) {
-                text[text.length-2] = this.filtered[0].title ;
-                this.selection.push(parseInt(this.filtered[0].index)) ;
+                text[text.length-2] = this.filtered[this.filterIndex].title ;
+                this.selection.push(parseInt(this.filtered[this.filterIndex].index)) ;
             } else {
                 this.selection.push("new") ;
             }
-            this.input.value = text.join("/") ;
+            this.input.value = text.join(PathInput.slash) ;
+            this.filterIndex = 0 ;
             this.update(evt, false) ;
+            this.input.setSelectionRange( this.chars.length-1, this.chars.length ) ;
         } ;
 
         switch(evt.code) {
+            case "ArrowDown":
+            case "ArrowUp":
+                evt.preventDefault();
+                let limit = this.input.value.split(PathInput.slash).length - 1
+                this.input.value = this.input.value.split(PathInput.slash, limit).join(PathInput.slash) + PathInput.slash ;
+                this.filterIndex += evt.code === "ArrowDown" ? 1 : -1 ;
+                if(this.filterIndex >= this.filtered.length)
+                    this.filterIndex = 0 ;
+                if(this.filterIndex < 0)
+                    this.filterIndex = this.filtered.length-1 ;
+                this.input.value += this.filtered[this.filterIndex]?.title || "New Folder" ;
+                this.backgroundText.innerText = this.input.value ;
+                break ;
             case "ArrowRight":
                 evt.preventDefault();
-                if(this.chars[this.chars.length-1] === "/")
-                    return ;
-                this.input.value = this.input.value + "/" ;
-                insertPathName() ;
+                if(this.filtered[this.filterIndex]?.title) {
+                    if (this.chars[this.chars.length - 1] === PathInput.slash)
+                        this.input.value += this.filtered[this.filterIndex]?.title || "New Folder" ;
+                    this.input.value = this.input.value + PathInput.slash;
+                    insertPathName() ;
+                }
                 break ;
             case "Slash":
                 evt.preventDefault();
-                if(this.chars[this.chars.length-1] === "/")
-                    return ;
+                if(this.chars[this.chars.length-1] === PathInput.slash)
+                    this.input.value += (this.filtered[this.filterIndex]?.title || "New Folder") + PathInput.slash ;
                 insertPathName() ;
                 break ;
             case "Delete":
@@ -129,11 +163,11 @@ class PathInput {
                 break ;
             case "Backspace":
                 evt.preventDefault();
-                if(this.chars[this.chars.length-1] === "/")
+                if(this.chars[this.chars.length-1] === PathInput.slash)
                     return ;
                 let i ;
                 for(i = this.chars.length-1; i >= 0; i--)
-                    if(this.chars[i] === "/") {
+                    if(this.chars[i] === PathInput.slash) {
                         i ++ ; break ;
                     }
                 if(i === -1) {
@@ -149,8 +183,8 @@ class PathInput {
     }
 
     update(evt, fromInput = true) {
-        if(fromInput && evt.data === "/") {
-            if(this.chars[this.chars.length-1] === "/")
+        if(fromInput && evt.data === PathInput.slash) {
+            if(this.chars[this.chars.length-1] === PathInput.slash)
                 this.input.value = this.chars.join("") ;
             return ;
         }
@@ -162,7 +196,7 @@ class PathInput {
         }
 
         this.chars = this.input.value.split("") ;
-        if(this.chars.length) {
+        if(this.chars.length > 1) {
             this.clearButton.classList.add("show") ;
         } else {
             this.clearButton.classList.remove("show") ;
@@ -172,32 +206,69 @@ class PathInput {
         this.suggestions.innerHTML = "" ;
         let text = this.input.value ;
 
+        this.backgroundText.scrollLeft = this.calculateCaretPosition() ;
+
         let fh = this.pathHierarchy ;
         let index ;
+        this.backgroundText.innerText = PathInput.slash ;
         for(index of this.selection) {
             if(index === "new") break ;
+            this.backgroundText.innerText += fh[index].title + PathInput.slash ;
             fh = fh[index].children ;
         }
 
         if(index !== "new") {
             for(let i in fh) if(fh.hasOwnProperty(i)) {
-                let currentFolder = text.split("/") ;
+                let currentFolder = text.split(PathInput.slash) ;
                 currentFolder = currentFolder[currentFolder.length-1] ;
                 if(fh[i]?.title?.toLowerCase()?.startsWith(currentFolder?.toLowerCase())) {
                     const listItem = document.createElement("li");
                     listItem.innerText = fh[i].title;
-                    this.filtered.push({ title: fh[i].title, index: i}) ;
+                    this.filtered.push(new FilteredItem(fh[i].title, i)) ;
                     this.suggestions.appendChild(listItem);
                 }
             }
+            if(this.filtered[this.filterIndex]?.title)
+                this.backgroundText.innerText += this.filtered[this.filterIndex]?.title ;
         } else {
             const listItem = document.createElement("li");
             listItem.innerText = "New Folder";
             this.suggestions.appendChild(listItem);
         }
+
+        // Fire an event
+        let updateEvt = new Event("updatePathInput") ;
+        updateEvt.selection = this.selection ;
+        updateEvt.filtered = this.filtered ;
+        updateEvt.value = this.input.value ;
+        updateEvt.chars = this.chars ;
+        this.input.dispatchEvent(updateEvt) ;
     }
 
+    // Hide the suggestions box
     hide() {
         this.suggestions.classList.remove("show") ;
+    }
+
+    calculateCaretPosition() {
+        let column = this.input.selectionStart ;
+        let width = this.input.offsetWidth ;
+
+        console.log(column*this.options.fontSize < width, column*this.options.fontSize, width, (-(column*this.options.fontSize) - width)) ;
+
+        if(column*this.options.fontSize < width)
+            return 0;
+        return (column*this.options.fontSize) - width ;
+    }
+}
+
+class FilteredItem {
+    constructor(title, index) {
+        this.title = title ;
+        this.index = index ;
+    }
+
+    toString() {
+        return "[" + this.index + "]: " + this.title ;
     }
 }

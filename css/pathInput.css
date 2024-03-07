@@ -1,27 +1,50 @@
 .path-input--label {
+    font-family: "Arial", sans-serif;
     position: relative;
+    display: block;
 }
 
+.path-input-background-text--span,
 .path-input--input {
+    font-family: "Arial", sans-serif;
     border: 1px solid #005cc8;
     margin: 20px 5% 0 5% ;
     padding: 10px 15px;
     transition: background-color 0.3s ease;
     width: 85% ;
     font-size: 20px;
+    cursor: text;
+}
+
+.path-input-background-text--span {
+    position: absolute;
+    border: 16px solid transparent;
+    border-top-width: 11px;
+    border-bottom-width: 11px;
+    padding: 0;
+    top: -2px;
+    left: 0;
+    opacity: 50%;
+    height: 23px;
+    text-align: left;
+    word-break: keep-all;
+    white-space: nowrap;
+    overflow: hidden;
+    user-select: none;
 }
 
 .path-input-clear--span {
     display: none;
     position: absolute;
-    top: -4px;
-    right: 50px;
+    top: 27px;
+    right: 37px;
     color: #005cc8;
     font-size: 24px;
     cursor: pointer;
 }
 
 .path-input-suggestions--ul {
+    font-family: "Arial", sans-serif;
     border: 1px solid #005cc8;
     margin: 3px 5% 0 5% ;
     padding: 10px 15px;
