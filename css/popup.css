@@ -95,7 +95,7 @@ header h1 {
     width: 96%;
 }
 
-#clear-folder-input,
+.path-input-clear--span,
 #clear-search-input,
 #clear-tab-group-input {
     display: none;
@@ -107,12 +107,12 @@ header h1 {
     cursor: pointer;
 }
 
-#clear-folder-input {
+.path-input-clear--span {
     top: -9px;
     right: 39px;
 }
 
-#clear-folder-input.show,
+.path-input-clear--span.show,
 #clear-search-input.show,
 #clear-tab-group-input.show {
     display: inline;
@@ -343,11 +343,7 @@ body.dark #version--div {
     border: 2px solid var(--dark) ;
 }
 
-#new-bookmark-folder-label {
-    position: relative;
-}
-
-#new-bookmark-folder-suggested-data.show,
+.path-input-suggestions--ul.show,
 #new-bookmark-window--div.show {
     display: block ;
 }
@@ -360,7 +356,7 @@ body.dark #new-bookmark-window--div {
 #new-bookmark-window--div h1,
 #new-bookmark-window--div input,
 #new-bookmark-window--div button,
-#new-bookmark-folder-suggested-data {
+.path-input-suggestions--ul {
     border: 1px solid var(--blue);
     margin: 20px 5% 0 5% ;
     padding: 10px 15px;
@@ -374,7 +370,7 @@ body.dark #new-bookmark-window--div {
     background-color: var(--blue);
 }
 
-#new-bookmark-folder-suggested-data {
+.path-input-suggestions--ul {
     display: none ;
     position: absolute;
     list-style: none;
@@ -384,13 +380,13 @@ body.dark #new-bookmark-window--div {
     margin-top: 3px;
 }
 
-body.dark #new-bookmark-folder-suggested-data {
+body.dark .path-input-suggestions--ul {
     background-color: var(--dark);
     border-color: var(--off-white) ;
     color: var(--white) ;
 }
 
-#new-bookmark-folder-suggested-data li {
+.path-input-suggestions--ul li {
     text-align: left;
     padding: 5px;
 }

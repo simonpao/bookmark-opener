@@ -1,0 +1,44 @@
+.path-input--label {
+    position: relative;
+}
+
+.path-input--input {
+    border: 1px solid #005cc8;
+    margin: 20px 5% 0 5% ;
+    padding: 10px 15px;
+    transition: background-color 0.3s ease;
+    width: 85% ;
+    font-size: 20px;
+}
+
+.path-input-clear--span {
+    display: none;
+    position: absolute;
+    top: -4px;
+    right: 50px;
+    color: #005cc8;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.path-input-suggestions--ul {
+    border: 1px solid #005cc8;
+    margin: 3px 5% 0 5% ;
+    padding: 10px 15px;
+    transition: background-color 0.3s ease;
+    width: 85% ;
+    font-size: 20px;
+    display: none ;
+    position: absolute;
+    list-style: none;
+}
+
+.path-input-clear--span.show,
+.path-input-suggestions--ul.show{
+    display: block ;
+}
+
+.path-input-suggestions--ul li {
+    text-align: left;
+    padding: 5px;
+}

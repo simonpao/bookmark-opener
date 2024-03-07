@@ -6,6 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="./js/jquery-3.6.3.min.js"></script>
+    <script src="./js/pathInput.js"></script>
+    <link rel="stylesheet" href="./css/pathInput.css" />
     <link rel="stylesheet" href="./css/popup.css" />
 </head>
 <body>
@@ -55,11 +57,7 @@
         <input tabindex="0" id="new-bookmark-title" placeholder="Bookmark Name" type="text" />
     </label>
     <h1>Folder</h1>
-    <label id="new-bookmark-folder-label">
-        <input tabindex="0" id="new-bookmark-folder" placeholder='Bookmark Folder' type="text" title="Separate folders with a slash ('/')"/>
-        <span id="clear-folder-input">×</span>
-    </label>
-    <ul id="new-bookmark-folder-suggested-data"></ul>
+    <input tabindex="0" id="new-bookmark-folder" placeholder='Bookmark Folder' type="text" />
     <h1>URL</h1>
     <label id="new-bookmark-url-label">
         <input tabindex="0" id="new-bookmark-url" placeholder="Bookmark URL" type="text" />
