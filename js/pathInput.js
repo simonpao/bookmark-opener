@@ -114,6 +114,11 @@ class PathInput {
         this.suggestions.classList.add("show") ;
     }
 
+    // Hide the suggestions box
+    hide() {
+        this.suggestions.classList.remove("show") ;
+    }
+
     process(evt) {
         let insertPathName = () => {
             let text = this.input.value.split(PathInput.slash) ;
@@ -259,9 +264,9 @@ class PathInput {
         this.backgroundText.scrollLeft = this.input.scrollLeft ;
     }
 
-    // Hide the suggestions box
-    hide() {
-        this.suggestions.classList.remove("show") ;
+    get _value() {
+        let value = this.input.value.slice(1,this.input.value.length) ;
+        return value.split(PathInput.slash) ;
     }
 }
 

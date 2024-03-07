@@ -239,7 +239,7 @@ async function saveNewBookmark() {
         return false ;
     }
 
-    let folder = $("#new-bookmark-folder").val().split("/") ;
+    let folder = pathInput._value ;
     let title  = $("#new-bookmark-title").val() ;
     let url    = $("#new-bookmark-url").val() ;
 
