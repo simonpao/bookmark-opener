@@ -82,6 +82,7 @@ class PathInput {
         this.input.addEventListener("input", this.update.bind(this)) ;
         this.input.addEventListener("keyup", this.process.bind(this)) ;
         this.input.addEventListener("focusout", this.hide.bind(this)) ;
+        this.input.addEventListener("scroll", this.scroll.bind(this)) ;
         this.clearButton.addEventListener("click", this.clear.bind(this)) ;
 
         this.enabled = true ;
@@ -93,6 +94,7 @@ class PathInput {
         this.input.removeEventListener("input", this.update.bind(this)) ;
         this.input.removeEventListener("keyup", this.process.bind(this)) ;
         this.input.removeEventListener("focusout", this.hide.bind(this)) ;
+        this.input.removeEventListener("scroll", this.scroll.bind(this)) ;
         this.clearButton.removeEventListener("click", this.clear.bind(this)) ;
 
         this.enabled = false ;
@@ -124,7 +126,6 @@ class PathInput {
             this.input.value = text.join(PathInput.slash) ;
             this.filterIndex = 0 ;
             this.update(evt, false) ;
-            this.input.setSelectionRange( this.chars.length-1, this.chars.length ) ;
         } ;
 
         switch(evt.code) {
@@ -133,11 +134,13 @@ class PathInput {
                 evt.preventDefault();
                 let limit = this.input.value.split(PathInput.slash).length - 1
                 this.input.value = this.input.value.split(PathInput.slash, limit).join(PathInput.slash) + PathInput.slash ;
+                this.suggestions.children[this.filterIndex]?.classList.remove("selected") ;
                 this.filterIndex += evt.code === "ArrowDown" ? 1 : -1 ;
                 if(this.filterIndex >= this.filtered.length)
                     this.filterIndex = 0 ;
                 if(this.filterIndex < 0)
                     this.filterIndex = this.filtered.length-1 ;
+                this.suggestions.children[this.filterIndex]?.classList.add("selected") ;
                 this.input.value += this.filtered[this.filterIndex]?.title || "New Folder" ;
                 this.backgroundText.innerText = this.input.value ;
                 break ;
@@ -148,13 +151,17 @@ class PathInput {
                         this.input.value += this.filtered[this.filterIndex]?.title || "New Folder" ;
                     this.input.value = this.input.value + PathInput.slash;
                     insertPathName() ;
+                    this.input.scrollLeft = this.chars.length * 24 ;
                 }
                 break ;
             case "Slash":
                 evt.preventDefault();
                 if(this.chars[this.chars.length-1] === PathInput.slash)
                     this.input.value += (this.filtered[this.filterIndex]?.title || "New Folder") + PathInput.slash ;
+                else
+                    this.input.value = this.input.value.replace(/\//g, PathInput.slash) ;
                 insertPathName() ;
+                this.input.scrollLeft = this.chars.length * 24 ;
                 break ;
             case "Delete":
                 evt.preventDefault();
@@ -183,7 +190,7 @@ class PathInput {
     }
 
     update(evt, fromInput = true) {
-        if(fromInput && evt.data === PathInput.slash) {
+        if(fromInput && evt.data === "/") {
             if(this.chars[this.chars.length-1] === PathInput.slash)
                 this.input.value = this.chars.join("") ;
             return ;
@@ -205,8 +212,6 @@ class PathInput {
         this.filtered = [] ;
         this.suggestions.innerHTML = "" ;
         let text = this.input.value ;
-
-        this.backgroundText.scrollLeft = this.calculateCaretPosition() ;
 
         let fh = this.pathHierarchy ;
         let index ;
@@ -230,11 +235,16 @@ class PathInput {
             }
             if(this.filtered[this.filterIndex]?.title)
                 this.backgroundText.innerText += this.filtered[this.filterIndex]?.title ;
+            else
+                this.backgroundText.innerText = this.input.value;
         } else {
             const listItem = document.createElement("li");
             listItem.innerText = "New Folder";
             this.suggestions.appendChild(listItem);
+            this.backgroundText.innerText = this.input.value;
         }
+
+        this.scroll() ;
 
         // Fire an event
         let updateEvt = new Event("updatePathInput") ;
@@ -245,20 +255,13 @@ class PathInput {
         this.input.dispatchEvent(updateEvt) ;
     }
 
+    scroll() {
+        this.backgroundText.scrollLeft = this.input.scrollLeft ;
+    }
+
     // Hide the suggestions box
     hide() {
         this.suggestions.classList.remove("show") ;
-    }
-
-    calculateCaretPosition() {
-        let column = this.input.selectionStart ;
-        let width = this.input.offsetWidth ;
-
-        console.log(column*this.options.fontSize < width, column*this.options.fontSize, width, (-(column*this.options.fontSize) - width)) ;
-
-        if(column*this.options.fontSize < width)
-            return 0;
-        return (column*this.options.fontSize) - width ;
     }
 }
 

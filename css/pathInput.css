@@ -9,7 +9,7 @@
     font-family: "Arial", sans-serif;
     border: 1px solid #005cc8;
     margin: 20px 5% 0 5% ;
-    padding: 10px 15px;
+    padding: 10px 25px 10px 15px;
     transition: background-color 0.3s ease;
     width: 85% ;
     font-size: 20px;
@@ -18,13 +18,13 @@
 
 .path-input-background-text--span {
     position: absolute;
-    border: 16px solid transparent;
-    border-top-width: 11px;
-    border-bottom-width: 11px;
+    border: 11px solid transparent;
+    border-right-width: 26px;
+    border-left-width: 16px;
     padding: 0;
     top: -2px;
     left: 0;
-    opacity: 50%;
+    opacity: 35%;
     height: 23px;
     text-align: left;
     word-break: keep-all;
@@ -37,7 +37,7 @@
     display: none;
     position: absolute;
     top: 27px;
-    right: 37px;
+    right: 27px;
     color: #005cc8;
     font-size: 24px;
     cursor: pointer;
@@ -62,6 +62,13 @@
 }
 
 .path-input-suggestions--ul li {
+    border: 2px solid transparent;
+    text-align: left;
+    padding: 5px;
+}
+
+.path-input-suggestions--ul li.selected {
+    border-color: #005cc8;
     text-align: left;
     padding: 5px;
 }
