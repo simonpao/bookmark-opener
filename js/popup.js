@@ -217,7 +217,7 @@ function executeCommand(command) {
 }
 
 function showNewBookmarkWindow() {
-    chrome.tabs.query({active: true}, tabs => {
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         if(tabs.length) {
             showingNewBookmarkWindow = true;
             const $newBookmarkTitleInput = $("#new-bookmark-title") ;
