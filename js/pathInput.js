@@ -1,14 +1,16 @@
-class PathInput {
+class PathInput
+{
+    static slash = "\uFF0F" ;
 
     pathHierarchy = {} ;
-    options = {} ;
+    options = {
+        slash: PathInput.slash
+    } ;
     selection = [] ;
     filtered = [] ;
     filterIndex = 0 ;
     chars = [] ;
     enabled = false ;
-
-    static slash = "\uFF0F" ;
 
     /**
      * @param id
@@ -42,7 +44,7 @@ class PathInput {
         this.input = document.getElementById(id) ;
         this.input.classList.add("path-input--input") ;
         this.input.title = "Separate folders with a slash ('/')" ;
-        this.input.value = PathInput.slash ;
+        this.input.value = this.options.slash ;
 
         let parent = this.input.parentNode ;
         this.inputContainer = document.createElement("label") ;
@@ -95,6 +97,7 @@ class PathInput {
         this.input.removeEventListener("scroll", this.scroll.bind(this)) ;
         this.clearButton.removeEventListener("click", this.clear.bind(this)) ;
 
+        this.clear() ;
         this.enabled = false ;
     }
 
@@ -102,8 +105,9 @@ class PathInput {
     clear() {
         this.selection = [] ;
         this.filtered = [] ;
+        this.filterIndex = 0 ;
         this.chars = [] ;
-        this.input.value = PathInput.slash ;
+        this.input.value = this.options.slash ;
     }
 
     // Show the suggestions box
@@ -119,14 +123,14 @@ class PathInput {
 
     process(evt) {
         let insertPathName = () => {
-            let text = this.input.value.split(PathInput.slash) ;
+            let text = this.input.value.split(this.options.slash) ;
             if(this.filtered.length) {
                 text[text.length-2] = this.filtered[this.filterIndex].title ;
                 this.selection.push(parseInt(this.filtered[this.filterIndex].index)) ;
             } else {
                 this.selection.push("new") ;
             }
-            this.input.value = text.join(PathInput.slash) ;
+            this.input.value = text.join(this.options.slash) ;
             this.filterIndex = 0 ;
             this.update(evt, false) ;
         } ;
@@ -135,8 +139,8 @@ class PathInput {
             case "ArrowDown":
             case "ArrowUp":
                 evt.preventDefault();
-                let limit = this.input.value.split(PathInput.slash).length - 1
-                this.input.value = this.input.value.split(PathInput.slash, limit).join(PathInput.slash) + PathInput.slash ;
+                let limit = this.input.value.split(this.options.slash).length - 1
+                this.input.value = this.input.value.split(this.options.slash, limit).join(this.options.slash) + this.options.slash ;
                 this.suggestions.children[this.filterIndex]?.classList.remove("selected") ;
                 this.filterIndex += evt.code === "ArrowDown" ? 1 : -1 ;
                 if(this.filterIndex >= this.filtered.length)
@@ -150,19 +154,19 @@ class PathInput {
             case "ArrowRight":
                 evt.preventDefault();
                 if(this.filtered[this.filterIndex]?.title) {
-                    if (this.chars[this.chars.length - 1] === PathInput.slash)
+                    if (this.chars[this.chars.length - 1] === this.options.slash)
                         this.input.value += this.filtered[this.filterIndex]?.title || "New Folder" ;
-                    this.input.value = this.input.value + PathInput.slash;
+                    this.input.value = this.input.value + this.options.slash;
                     insertPathName() ;
                     this.input.scrollLeft = this.chars.length * 24 ;
                 }
                 break ;
             case "Slash":
                 evt.preventDefault();
-                if(this.chars[this.chars.length-1] === PathInput.slash)
-                    this.input.value += (this.filtered[this.filterIndex]?.title || "New Folder") + PathInput.slash ;
+                if(this.chars[this.chars.length-1] === this.options.slash)
+                    this.input.value += (this.filtered[this.filterIndex]?.title || "New Folder") + this.options.slash ;
                 else
-                    this.input.value = this.input.value.replace(/\//g, PathInput.slash) ;
+                    this.input.value = this.input.value.replace(/\//g, this.options.slash) ;
                 insertPathName() ;
                 this.input.scrollLeft = this.chars.length * 24 ;
                 break ;
@@ -173,11 +177,11 @@ class PathInput {
                 break ;
             case "Backspace":
                 evt.preventDefault();
-                if(this.chars[this.chars.length-1] === PathInput.slash)
+                if(this.chars[this.chars.length-1] === this.options.slash)
                     return ;
                 let i ;
                 for(i = this.chars.length-1; i >= 0; i--)
-                    if(this.chars[i] === PathInput.slash) {
+                    if(this.chars[i] === this.options.slash) {
                         i ++ ; break ;
                     }
                 if(i === -1) {
@@ -194,7 +198,7 @@ class PathInput {
 
     update(evt, fromInput = true) {
         if(fromInput && evt.data === "/") {
-            if(this.chars[this.chars.length-1] === PathInput.slash)
+            if(this.chars[this.chars.length-1] === this.options.slash)
                 this.input.value = this.chars.join("") ;
             return ;
         }
@@ -218,16 +222,16 @@ class PathInput {
 
         let fh = this.pathHierarchy ;
         let index ;
-        this.backgroundText.innerText = PathInput.slash ;
+        this.backgroundText.innerText = this.options.slash ;
         for(index of this.selection) {
             if(index === "new") break ;
-            this.backgroundText.innerText += fh[index].title + PathInput.slash ;
+            this.backgroundText.innerText += fh[index].title + this.options.slash ;
             fh = fh[index].children ;
         }
 
         if(index !== "new") {
             for(let i in fh) if(fh.hasOwnProperty(i)) {
-                let currentFolder = text.split(PathInput.slash) ;
+                let currentFolder = text.split(this.options.slash) ;
                 currentFolder = currentFolder[currentFolder.length-1] ;
                 if(fh[i]?.title?.toLowerCase()?.startsWith(currentFolder?.toLowerCase())) {
                     const listItem = document.createElement("li");
@@ -264,11 +268,12 @@ class PathInput {
 
     get _value() {
         let value = this.input.value.slice(1,this.input.value.length) ;
-        return value.split(PathInput.slash) ;
+        return value.split(this.options.slash) ;
     }
 }
 
-class FilteredItem {
+class FilteredItem
+{
     constructor(title, index) {
         this.title = title ;
         this.index = index ;

@@ -312,7 +312,6 @@ function closeNewBookmarkWindow() {
     $("#new-bookmark-url").val("") ;
 
     pathInput.disable() ;
-    pathInput.clear() ;
 
     $searchInput.focus() ;
 }
@@ -450,15 +449,13 @@ async function constructHierarchy(bookmarks) {
     let array = [] ;
     for(let item of bookmarks) {
         let obj = {} ;
-        if(item.title && item.children && item.children.length) {
+        if(item.title && Array.isArray(item.children)) {
             obj.title = item.title;
             obj.id = item.id ;
             obj.parentId = item.parentId ;
         }
-        if(item.children && item.children.length) {
-            let children = await constructHierarchy(item.children) ;
-            if(children.length > 0)
-                obj.children = children ;
+        if(Array.isArray(item.children)) {
+            obj.children = await constructHierarchy(item.children) ;
         }
         if(typeof obj.title === "string")
             array.push(obj) ;
