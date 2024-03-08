@@ -239,35 +239,45 @@ async function saveNewBookmark() {
         return false ;
     }
 
-    let folder = pathInput._value ;
-    let title  = $("#new-bookmark-title").val() ;
-    let url    = $("#new-bookmark-url").val() ;
+    try {
+        let folder = pathInput._value;
+        let title = $("#new-bookmark-title").val();
+        let url = $("#new-bookmark-url").val();
 
-    if(folder[folder.length-1] !== "")
-        pathInput.selection.push("new") ;
+        if (folder[folder.length - 1] !== "")
+            pathInput.selection.push("new");
 
-    let parentId ;
-    let fh = pathInput.pathHierarchy ;
-    let fhs = pathInput.selection ;
-    for(let i in fhs) if(fhs.hasOwnProperty(i)) {
-        if(fhs[i] === "new") {
-            if(title && parentId) {
-                let newFolder = await createFolder(folder[i], parentId);
-                fh = newFolder.children ;
-                parentId = newFolder.id ;
+        let parentId;
+        let fh = pathInput.pathHierarchy;
+        let fhs = pathInput.selection;
+        for (let i in fhs) if (fhs.hasOwnProperty(i)) {
+            if (fhs[i] === "new") {
+                if (title && parentId) {
+                    let newFolder = await createFolder(folder[i], parentId);
+                    fh = newFolder.children;
+                    parentId = newFolder.id;
+                }
+            } else {
+                parentId = fh[fhs[i]].id;
+                fh = fh[fhs[i]].children;
             }
-        } else {
-            parentId = fh[fhs[i]].id ;
-            fh = fh[fhs[i]].children ;
         }
-    }
 
-    await createBookmark(title, url, parentId) ;
-    return true ;
+        await createBookmark(title, url, parentId);
+        return true;
+    } catch(e) {
+        showMessage("error-create-bookmark") ;
+        console.error(e) ;
+        return false ;
+    }
 }
 
 async function createBookmark(title, url, folderId) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+        if(!folderId || !title || !url) {
+            reject("Error creating bookmark") ;
+            return ;
+        }
         chrome.bookmarks.create({
             parentId: folderId.toString(),
             title: title,
@@ -279,7 +289,11 @@ async function createBookmark(title, url, folderId) {
 }
 
 async function createFolder(title, parentId) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+        if(!title || !parentId) {
+            reject("Error creating folder") ;
+            return ;
+        }
         chrome.bookmarks.create(
             {
                 parentId: parentId.toString(),

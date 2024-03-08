@@ -1,9 +1,7 @@
 class PathInput {
 
     pathHierarchy = {} ;
-    options = {
-        fontSize: 20
-    } ;
+    options = {} ;
     selection = [] ;
     filtered = [] ;
     filterIndex = 0 ;
